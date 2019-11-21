@@ -98,8 +98,13 @@
         </div>
       </div>
     </scroll>
-    
-    
+    <!-- 底部评论 -->
+    <div class="footer-reivew">
+      <input type="text">
+      <div class="zhuan">
+        <img src="./../common/zf.png" alt="">
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -125,7 +130,7 @@ export default {
   background-color: #fff;
   height: 100vh;
   .scroll-arcitle {
-    height: calc(~"100vh - 1.76rem");
+    height: calc(~"100vh - 1.86rem");
     overflow: hidden;
   }
   .banner {
@@ -234,6 +239,23 @@ export default {
       .review-des {
         padding: .3rem 0 0;
       }
+    }
+  }
+  .footer-reivew {
+    height: .98rem;
+    width: 100vw;
+    background-color: #F9F9F9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 .3rem;
+    input {
+      width: 5.72rem;
+      height: .68rem;
+      outline: none;
+      padding: 0;
+      border: 0;
+      background-color: #fff;
     }
   }
 }
