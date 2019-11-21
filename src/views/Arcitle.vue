@@ -100,9 +100,9 @@
     </scroll>
     <!-- 底部评论 -->
     <div class="footer-reivew">
-      <input type="text">
+      <input type="text" placeholder="发表您的评论...">
       <div class="zhuan">
-        <img src="./../common/zf.png" alt="">
+        <img src="./../common/zf.png">
       </div>
     </div>
   </div>
@@ -249,6 +249,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     padding: 0 .3rem;
+    box-sizing: border-box;
     input {
       width: 5.72rem;
       height: .68rem;
@@ -256,6 +257,24 @@ export default {
       padding: 0;
       border: 0;
       background-color: #fff;
+      border-radius: .34rem;
+      box-sizing: border-box;
+      padding-left: .4rem;
+    }
+    input::-webkit-input-placeholder {
+      font-size: .3rem;
+      color: #848484;
+    }
+    .zhuan {
+      width: .98rem;
+      height: .98rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      img {
+        width: .48rem;
+        height: .46rem;
+      }
     }
   }
 }
