@@ -1,0 +1,158 @@
+<template>
+  <div class="home">
+    <!-- 头部 -->
+    <header-box></header-box>
+    <!-- 内容区域 -->
+    <scroll class="home-container">
+      <div class="home-box">
+        <!-- 轮播图 -->
+        <div class="banner">
+          <img src="./../common/banner.png" alt="">
+        </div>
+        <h2 class="home-title">直播专区</h2>
+        <!-- 四大专区 -->
+        <ul class="home-card">
+          <li v-for="item in card" :key="item.name" @click="goCard(item)">
+            <img :src="item.img">
+          </li>
+        </ul>
+        <!-- 直播图片入口 -->
+        <div class="go-live">
+          <img :src="ring">
+        </div>
+        <h2 class="home-title">资讯专区</h2>
+        <div class="arcitle-container">
+          <arcitle-menu :arcitle="arcitle"></arcitle-menu>
+        </div>
+      </div>
+    </scroll>
+  </div>
+</template>
+<script>
+import HeaderBox from '@/components/HeaderBox'
+export default {
+  name: 'home',
+  data() {
+    return {
+      // 卡片跳转配置
+      card: [
+        {
+          name: '杨森艾舒专区',
+          img: require('./../common/banner1.png'),
+          path: '/aishulive'
+        },
+        {
+          name: '达克宁家族',
+          img: require('./../common/banner2.png'),
+          path: ''
+        },
+        {
+          name: '抗过敏家族',
+          img: require('./../common/banner3.png'),
+          path: ''
+        },
+        {
+          name: '儿童退热家族',
+          img: require('./../common/banner4.png'),
+          path: ''
+        }
+      ],
+      // 跳转擂台图片
+      ring: require('./../common/ad1.png'),
+      // 文章
+      arcitle: [
+        {
+          id: 1,
+          title: '相思',
+          img: require('./../common/1.jpg'),
+          des: '红豆生南国，春来发几枝。愿君多采撷，此物最相思。',
+          path: 123
+        },
+        {
+          id: 2,
+          title: '游子吟',
+          img: require('./../common/2.jpg'),
+          des: '慈母手中线，游子身上衣。临行密密缝，意恐迟迟归。谁言寸草心，报得三春晖。',
+          path: 1234
+        },
+        {
+          id: 3,
+          title: '无题',
+          img: require('./../common/3.jpg'),
+          des: '相见时难别亦难，东风无力百花残。春蚕到死丝方尽，蜡炬成灰泪始干。晓镜但愁云鬓改，夜吟应觉月光寒。蓬山此去无多路，青鸟殷勤为探看。',
+          path: 123
+        }
+      ]
+    }
+  },
+  methods: {
+    // 点击四大专区卡片跳转
+    goCard (val) {
+      if (val.path) {
+        this.$router.push(val.path)
+      }
+    }
+  },
+  components: {
+    HeaderBox,
+    ArcitleMenu: () => import('@/components/ArcitleMenu'),
+    Scroll: () => import('@/components/Scroll')
+  }
+}
+</script>
+<style lang="less" scoped>
+.home-container {
+  padding: 0 .3rem;
+  height: calc(~"100vh - .88rem");
+  overflow: hidden;
+  box-sizing: border-box;
+  .home-box {
+    padding: .3rem 0;
+  }
+  .banner {
+    width: 6.9rem;
+    height: 2.6rem;
+    background-color: red;
+    border-radius: .2rem;
+    overflow: hidden;
+    margin-bottom: .45rem;
+    img {
+      width: 100%;
+    }
+  }
+  .home-card {
+    width: 100%;
+    padding: .24rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    li {
+      width: 3.3rem;
+      height: 1.6rem;
+      margin-bottom: .3rem;
+      img {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+  .go-live {
+    height: 1.1rem;
+    padding: .19rem 0;
+    margin-bottom: .3rem;
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .arcitle-container {
+    padding-top: .28rem;
+  }
+}
+// 标题
+.home-title {
+  font-size: .36rem;
+  line-height: .5rem;
+  font-weight: bold;
+}
+</style>
