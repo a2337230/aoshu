@@ -30,6 +30,7 @@
 </template>
 <script>
 import HeaderBox from '@/components/HeaderBox'
+import { GetArticleShow } from '@/api/index'
 export default {
   name: 'home',
   data() {
@@ -60,30 +61,11 @@ export default {
       // 跳转擂台图片
       ring: require('./../common/ad1.png'),
       // 文章
-      arcitle: [
-        {
-          id: 1,
-          title: '相思',
-          img: require('./../common/1.jpg'),
-          des: '红豆生南国，春来发几枝。愿君多采撷，此物最相思。',
-          path: 123
-        },
-        {
-          id: 2,
-          title: '游子吟',
-          img: require('./../common/2.jpg'),
-          des: '慈母手中线，游子身上衣。临行密密缝，意恐迟迟归。谁言寸草心，报得三春晖。',
-          path: 1234
-        },
-        {
-          id: 3,
-          title: '无题',
-          img: require('./../common/3.jpg'),
-          des: '相见时难别亦难，东风无力百花残。春蚕到死丝方尽，蜡炬成灰泪始干。晓镜但愁云鬓改，夜吟应觉月光寒。蓬山此去无多路，青鸟殷勤为探看。',
-          path: 123
-        }
-      ]
+      arcitle: []
     }
+  },
+  created () {
+    this.getArcitle()
   },
   methods: {
     // 点击四大专区卡片跳转
@@ -91,6 +73,14 @@ export default {
       if (val.path) {
         this.$router.push(val.path)
       }
+    },
+    // 文章列表
+    async getArcitle () {
+      let result = await GetArticleShow()
+      if (result.Code === 200) {
+        this.arcitle = result.Data
+      }
+      console.log(result)
     }
   },
   components: {

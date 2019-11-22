@@ -4,17 +4,17 @@ import util from '@/util/util.js'
 
 // ----------------------------------------------------------------
 // 开始动画
-export default function ajax(url = '', params = {}, type = 'GET', delay = 0) {
+export default function ajax(url = '', params = {}, type = 'GET', isUrl = false) {
 	let promise
 	return new Promise((resolve, reject) => {
 		// 设置headers
 		var headers = {
-			// 'k': 'bb04d055-9b7b-4da6-9895-66965efb4d13',
-			// 'u': 'bd8063c7-4323-4a9a-9a20-b7dd48772983',
-			'Authorization': 'APPCODE 27c2bdd6227a4962b0779b6f6e1c881c',
-			'X-Ca-Stage': 'test',
-			'u': util.getCookie('u'),
-			'k': util.getCookie('k'),
+			'k': '021b23ea753029ef9f4348c9128fa705',
+			'u': '6d965efe4cb09a048967739d6fd16a29',
+			// 'Authorization': 'APPCODE 27c2bdd6227a4962b0779b6f6e1c881c',
+			// 'X-Ca-Stage': 'test',
+			// 'u': util.getCookie('u'),
+			// 'k': util.getCookie('k'),
 		}
 		if (type === 'GET') {
 			let paramsStr = ''
@@ -28,6 +28,7 @@ export default function ajax(url = '', params = {}, type = 'GET', delay = 0) {
 			}
 			// 完整路径
 			url += '?' + paramsStr
+			
 			promise = axios.get(url, {
 				headers
 			})

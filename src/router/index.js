@@ -24,6 +24,11 @@ export default new Router({
       path: '/arcitle',
       name: '文章',
       component: () => import('@/views/Arcitle')
+    },
+    {
+      path: '/livetv',
+      name: '直播',
+      component: () => import('@/views/livetv')
     }
   ]
 })

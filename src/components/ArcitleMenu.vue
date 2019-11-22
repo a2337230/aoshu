@@ -1,12 +1,12 @@
 <template>
   <ul class="arcitle">
-    <li v-for="item in arcitle" :key="item.id" @click="goArcitle">
+    <li v-for="item in arcitle" :key="item.id" @click="goArcitle(item)">
       <div class="left">
-        <img :src="item.img" alt="">
+        <img :src="'https://img.xlxt.net/' + item.PreviewUrl" alt="">
       </div>
       <div class="right">
-        <h3>{{item.title}}</h3>
-        <p>{{item.des}}</p>
+        <h3>{{item.Title}}</h3>
+        <p>{{item.Intro}}</p>
       </div>
     </li>
   </ul>
@@ -21,8 +21,13 @@ export default {
     }
   },
   methods: {
-    goArcitle () {
-      this.$router.push('/arcitle')
+    goArcitle (val) {
+      this.$router.push({
+        path: '/arcitle',
+        query: {
+          id: val.ArticleID
+        }
+      })
     }
   },
 }
