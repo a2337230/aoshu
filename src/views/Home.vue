@@ -7,7 +7,7 @@
       <div class="home-box">
         <!-- 轮播图 -->
         <div class="banner">
-          <img src="./../common/banner.png" alt="">
+          <swiper :imgs="banner"></swiper>
         </div>
         <h2 class="home-title">直播专区</h2>
         <!-- 四大专区 -->
@@ -30,6 +30,7 @@
 </template>
 <script>
 import HeaderBox from '@/components/HeaderBox'
+import Swiper from '@/components/Swiper'
 import { GetArticleShow } from '@/api/index'
 export default {
   name: 'home',
@@ -56,6 +57,18 @@ export default {
           name: '儿童退热家族',
           img: require('./../common/banner4.png'),
           path: ''
+        }
+      ],
+      // 轮播图
+      banner: [
+        {
+          img: require('./../common/1.jpg')
+        },
+        {
+          img: require('./../common/2.jpg')
+        },
+        {
+          img: require('./../common/3.jpg')
         }
       ],
       // 跳转擂台图片
@@ -85,6 +98,7 @@ export default {
   },
   components: {
     HeaderBox,
+    Swiper,
     ArcitleMenu: () => import('@/components/ArcitleMenu'),
     Scroll: () => import('@/components/Scroll')
   }
