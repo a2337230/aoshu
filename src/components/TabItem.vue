@@ -3,7 +3,7 @@
     <div class="details">
       <div class="title">
         <h2>艾舒止咳糖浆</h2>
-        <el-rate v-model="rate" :allow-half="true"></el-rate>
+        <el-rate v-model="rate" :allow-half="true" :void-icon-class="'iconfont icon-yduixingxingkongxin'" :icon-classes="['iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin']"></el-rate>
       </div>
       
     </div>
@@ -14,7 +14,7 @@ export default {
   name: 'tab-item',
   data() {
     return {
-      rate: null
+      rate: null,
     }
   },
 }
@@ -33,6 +33,8 @@ export default {
     .title {
       display: flex;
       justify-content: space-between;
+      height: .56rem;
+      align-items: center;
       h2 {
         font-size: .4rem;
         line-height: .56rem;
