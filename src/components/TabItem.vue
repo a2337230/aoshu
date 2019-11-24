@@ -5,7 +5,7 @@
         <h2>艾舒止咳糖浆</h2>
         <el-rate v-model="rate" :allow-half="true" :void-icon-class="'iconfont icon-yduixingxingkongxin'" :icon-classes="['iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin']"></el-rate>
       </div>
-      
+      <p class="hits">浏览量:1234234</p>
     </div>
   </div>
 </template>
@@ -44,6 +44,12 @@ export default {
         transform: scale(1);
         color: #006B45 !important;
       }
+    }
+    .hits {
+      font-weight: lighter;
+      color: #333;
+      font-size: .3rem;
+      line-height: .42rem;
     }
   }
 }
