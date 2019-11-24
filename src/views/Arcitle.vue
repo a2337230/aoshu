@@ -2,8 +2,10 @@
   <div class="arcitle">
     <!-- 头部 -->
     <header-box></header-box>
-    <scroll class="scroll-arcitle" v-if="arcitleInfo">
-      <div class="arcitle-container">
+    <scroll class="scroll-arcitle arcitle-content" :data="arcitleInfo">
+      <div v-if="!arcitleInfo">
+      </div>
+      <div class="arcitle-container" v-if="arcitleInfo">
         <div class="banner">
           <img :src="'https://img.xlxt.net/' + arcitleInfo.PreviewUrl" alt="">
           <!-- <div class="go-back">
@@ -65,7 +67,7 @@
         <img src="./../common/zf.png" v-else>
       </div>
     </div>
-    <share></share>
+    <share @closeShare="closeShare" v-if="isShare"></share>
   </div>
 </template>
 <script>
@@ -74,6 +76,7 @@ import {ArticleInfo1,ArticleInfo2,GetReviewFront,AddReview,AddReviewLike} from '
 import { Toast, MessageBox } from 'mint-ui'
 import moment from 'moment'
 import util from '@/util/util.js'
+import '@/common/js/mTween.js'
 export default {
   name: 'arcitle',
   data () {
@@ -93,7 +96,8 @@ export default {
       isHref: '',
       // 点赞图标
       yesLike: require('./../common/yeszan.png'),
-      noLike: require('./../common/nozan.png')
+      noLike: require('./../common/nozan.png'),
+      isShare: false
     }
   },
   created () {
@@ -120,6 +124,10 @@ export default {
     this.isHref = window.location.href
   },
   methods: {
+    // 兼容ios
+    iosView () {
+
+    },
     // 不需要登录接口
     async _ArticleInfo2 () {
       let result = await ArticleInfo2({
@@ -151,21 +159,43 @@ export default {
     },
     // 发表评论前验证登录
     isLoginFocus () {
-      if (!this.user) {
-        this.reviewContent = ''
-        this.bulr()
-        MessageBox({
-          title: '提示',
-          message: '登录后可以评论',
-          showConfirmButton: true,
-          showCancelButton: true,
-          confirmButtonText: '登录'
-        }).then(action => {
-          if (action === 'confirm') {
-            window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + this.isHref
-          }
-        }) 
-        return 
+      // if (!this.user) {
+      //   this.reviewContent = ''
+      //   this.bulr()
+      //   MessageBox({
+      //     title: '提示',
+      //     message: '登录后可以评论',
+      //     showConfirmButton: true,
+      //     showCancelButton: true,
+      //     confirmButtonText: '登录'
+      //   }).then(action => {
+      //     if (action === 'confirm') {
+      //       window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + this.isHref
+      //     }
+      //   }) 
+      //   return 
+      // }
+      var u = navigator.userAgent, app = navigator.appVersion
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      // alert(isiOS)
+      if (isiOS) {
+        window.scrollTo(0,0)
+        // document.title = document.documentElement.scrollIntoView(true)
+        // setTimeout(function(){document.documentElement.scrollIntoView(true)},200);
+        // });
+        // let dom = document.documentElement
+        // let h = window.innerHeight
+        // mTween({
+        //   el: dom,
+        //   attr: {
+        //     translateY: -window.innerHeight
+        //   },
+        //   time: 2000
+        // })
+        setInterval(() => {
+          // document.documentElement.scrollIntoView(true)
+          document.title = window.innerHeight
+        }, 20);
       }
     },
     // 发表评论
@@ -203,7 +233,9 @@ export default {
     },
     // 转发
     transmit () {
-      alert(111)
+      if (!this.isH5) {
+        this.isShare = true
+      }
     },
     copy (e) {
       Toast('链接复制成功,快去粘贴吧')
@@ -211,6 +243,33 @@ export default {
     onError (e) {
       Toast('复制失败')
     },
+    closeShare () {
+      this.isShare = false
+    }
+  },
+  watch: {
+    arcitleInfo () {
+      // 兼容ios
+      var u = navigator.userAgent, app = navigator.appVersion
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      if (isiOS) {
+        this.$nextTick(() => {
+          let header = document.querySelector('.header')
+          let content = document.querySelector('.arcitle-content')
+          let footer = document.querySelector('.footer-reivew')
+          // 可是区高度
+          let domHeight = window.innerHeight
+          // 头部高度
+          let headerHeight = header.clientHeight
+          // 底部高度
+          let footerHeight = footer.clientHeight
+          document.documentElement.style.height = domHeight + 'px'
+          content.style.height = domHeight - headerHeight - footerHeight + 'px'
+          console.log(content)
+          // alert(window.innerHeight,document.d)
+        })
+      }
+    }
   },
   filters: {
     timeFormat (val) {
