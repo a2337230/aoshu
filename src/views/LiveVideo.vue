@@ -44,7 +44,7 @@
           </div>
         </div>
       </div>
-      <scroll class="review"  v-show="type == 2" :data="reviewList" :pullup="pullup" @scrollToEnd="scrollToEnd">
+      <scroll class="review"  v-if="type == 2" :data="reviewList" :pullup="pullup" @scrollToEnd="scrollToEnd">
         <div class="review-container">
           <p class="star">评价该课程： <el-rate v-model="Star" :allow-half="true" :void-icon-class="'iconfont icon-yduixingxingkongxin'" :icon-classes="['iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin']"></el-rate></p>
           <el-input
@@ -249,6 +249,8 @@ export default {
     .review {
       height: calc(~"100vh - .88rem - 4.52rem - .51rem - .23rem - .46rem");
       overflow: hidden;
+      // display: flex;
+      // align-items: center;
       /deep/ .el-rate__icon, /deep/ .hover, /deep/ .el-rate__decimal {
         font-size: .4rem;
         transform: scale(1);
@@ -258,7 +260,7 @@ export default {
         display: flex;
         line-height: .4rem;
         font-size: .3rem;
-        margin-bottom: .3rem;
+        // margin-bottom: .3rem;
       }
       .btn-container {
         padding: .2rem 0;
@@ -296,6 +298,10 @@ export default {
               color: #363636;
               font-size: .28rem;
               line-height: .4rem;
+              width: 2.5rem;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
             }
             time {
               color: #999;
@@ -306,6 +312,7 @@ export default {
           .star {
             position: absolute;
             right: 0;
+            margin-top: .15rem;
           }
         }
         .review-content {

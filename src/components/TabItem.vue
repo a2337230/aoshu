@@ -32,7 +32,7 @@
       <button @click="goLive">立即学习</button>
     </div>
     <!-- 评论 -->
-    <div class="review" v-show="type == 2">
+    <div class="review" v-if="type == 2">
       <scroll class="review-menu" :data="reviewList" :pullup="pullup" @scrollToEnd="scrollToEnd">
         <ul>
           <li class="review-item" v-for="item in reviewList" :key="item.ReviewID">
