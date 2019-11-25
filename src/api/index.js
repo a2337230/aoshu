@@ -15,3 +15,9 @@ export const AddReview = (params) => ajax(BASE_URL + '/Review/AddArticleReview',
 export const AddReviewLike = (params) => ajax(BASE_URL + '/Review/AddArticleReviewLike', params)
 // 获取直播
 export const GetLive = (params) => ajax(BASE_URL + '/AD/GetAD', params)
+// 获取课程详情
+export const GetCourseByIDShow = (params) => ajax(BASE_URL + '/Course/GetCourseByIDShow', params)
+// 获取课程目录
+export const GetChapterCoursewareShow = (params) => ajax(BASE_URL + '/Course/GetChapterCoursewareShow', params)
+// 获取课程评论
+export const GetReview = (params) => ajax(BASE_URL + '/Review/GetReview', params)

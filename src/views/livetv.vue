@@ -3,20 +3,51 @@
     <header-box></header-box>
     <!-- banner -->
     <div class="banner">
-      <img src="./../common/2.jpg" alt="">
+      <img :src="'https://img.xlxt.net/' + liveInfo.Img" alt="">
     </div>
     <!-- tab选项卡 -->
     <tabs @cuttentTabs="cuttentTabs"></tabs>
-    <tab-item></tab-item>
+    <tab-item :data="liveInfo" :chapterList="chapterList"></tab-item>
   </div>
 </template>
 <script>
 import HeaderBox from '@/components/HeaderBox'
 import Tabs from '@/components/Tabs'
 import TabItem from '@/components/TabItem'
+import { GetCourseByIDShow, GetChapterCoursewareShow } from '@/api/index'
 export default {
   name: 'livetv',
+  data () {
+    return {
+      liveInfo: '',
+      chapterList: []
+    }
+  },
+  created () {
+    this._GetCourseByIDShow()
+    this._GetChapterCoursewareShow()
+  },
   methods: {
+    // 获取直播详情
+    async _GetCourseByIDShow () {
+      let result = await GetCourseByIDShow({
+        courseID: 2634
+      })
+      if (result.Code === 200) {
+        this.liveInfo = result.Data.c
+      }
+      // console.log(this.liveInfo)
+    },
+    // 获取课程目录
+    async _GetChapterCoursewareShow () {
+      let result = await GetChapterCoursewareShow({
+        courseID: 2634
+      })
+      if (result.Code === 200) {
+        this.chapterList = result.Data.List
+      }
+      console.log(result)
+    },
     cuttentTabs (index) {
       console.log(index)
     }
