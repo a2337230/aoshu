@@ -7,7 +7,7 @@
     </div>
     <!-- tab选项卡 -->
     <tabs @cuttentTabs="cuttentTabs"></tabs>
-    <tab-item :data="liveInfo" :chapterList="chapterList"></tab-item>
+    <tab-item :data="liveInfo" :chapterList="chapterList" :type="type"></tab-item>
   </div>
 </template>
 <script>
@@ -20,10 +20,13 @@ export default {
   data () {
     return {
       liveInfo: '',
-      chapterList: []
+      chapterList: [],
+      type: 0,
+      id: 0
     }
   },
   created () {
+    this.id = this.$route.query.id
     this._GetCourseByIDShow()
     this._GetChapterCoursewareShow()
   },
@@ -31,7 +34,7 @@ export default {
     // 获取直播详情
     async _GetCourseByIDShow () {
       let result = await GetCourseByIDShow({
-        courseID: 2634
+        courseID: this.id
       })
       if (result.Code === 200) {
         this.liveInfo = result.Data.c
@@ -41,7 +44,7 @@ export default {
     // 获取课程目录
     async _GetChapterCoursewareShow () {
       let result = await GetChapterCoursewareShow({
-        courseID: 2634
+        courseID: this.id
       })
       if (result.Code === 200) {
         this.chapterList = result.Data.List
@@ -49,7 +52,8 @@ export default {
       console.log(result)
     },
     cuttentTabs (index) {
-      console.log(index)
+      this.type = index
+      // console.log(index)
     }
   },
   components: {

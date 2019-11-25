@@ -29,6 +29,11 @@ export default new Router({
       path: '/livetv',
       name: '直播',
       component: () => import('@/views/livetv')
+    },
+    {
+      path: '/livevideo',
+      name: '直播播放页',
+      component: () => import('@/views/LiveVideo')
     }
   ]
 })

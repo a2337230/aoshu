@@ -3,7 +3,7 @@
      <!-- 头部 -->
     <header-box></header-box>
     <ul class="aishu-list">
-      <li @click="goLive" v-for="item in liveMenu" :key="item.ADID">
+      <li @click="goLive(item.Sort)" v-for="item in liveMenu" :key="item.ADID">
         <img :src="'https://img.xlxt.net' + item.ImgUrl">
         <div class="live-status">
           <p>{{item | statusFormat}}</p>
@@ -31,11 +31,11 @@ export default {
     this.getLive()
   },
   methods: {
-    goLive () {
+    goLive (val) {
       this.$router.push({
         name: '直播',
         query: {
-          id: 11
+          id: val
         }
       })
     },
@@ -45,7 +45,7 @@ export default {
         positionCode: 'AI_SHU_LIVE'
       })
       this.liveMenu = result.Data.sort((n1,n2) => {
-        return n1.ADID - n2.ADID
+        return n2.ADID - n1.ADID
       })
       console.log(result)
     },

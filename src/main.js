@@ -6,6 +6,9 @@ import Mint from 'mint-ui'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'mint-ui/lib/style.css'
+import FastClick from 'fastclick'
+
+FastClick.attach(document.body);
 Vue.use(VueClipboard)
 Vue.use(Mint)
 Vue.use(ElementUI)

@@ -1,28 +1,40 @@
 <template>
   <ul class="tabs">
-    <li class="item" :class="{current: item.click}" v-for="(item, index) in tab" :key="item.title" @click="clickTab(index)">{{item.title}}</li>
+    <li class="item" :class="{current: item.click}" v-for="(item, index) in tab" v-show="!item.hide" :key="item.title" @click="clickTab(index)">{{item.title}}</li>
   </ul>
 </template>
 <script>
 export default {
   name: 'tabs',
+  props: {
+    type: {
+      type: Number,
+      default: 0
+    }
+  },
   data() {
     return {
       tab: [
         {
           title: '详情',
-          click: true
+          click: true,
+          hide: this.type
         },
         {
           title: '目录',
-          click: false
+          click: false,
+          hide: false
         },
         {
           title: '评论',
-          click: false
+          click: false,
+          hide:false
         }
       ]
     }
+  },
+  created () {
+    this.clickTab(this.type)
   },
   methods: {
     clickTab (index) {

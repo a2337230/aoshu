@@ -4,13 +4,12 @@
     <div class="details" v-show="!type">
       <div class="title">
         <h2>{{data.Name}}</h2>
-        <el-rate v-model="rate" :allow-half="true" :void-icon-class="'iconfont icon-yduixingxingkongxin'" :icon-classes="['iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin']"></el-rate>
+        <!-- <el-rate v-model="rate" :allow-half="true" :void-icon-class="'iconfont icon-yduixingxingkongxin'" :icon-classes="['iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin']"></el-rate> -->
       </div>
-      <p class="hits">浏览量:1234234</p>
+      <p class="hits">浏览量:{{data.BrowseNum}}</p>
       <div class="content" v-html="data.Introduce">
-        121212
       </div>
-      <button>立即学习</button>
+      <button class="isButton" @click="goLive">立即学习</button>
     </div>
     <!-- 章节 -->
     <div class="chapter" v-show="type == 1">
@@ -30,26 +29,31 @@
           </ul>
         </div>
       </div>
-      <button>立即学习</button>
+      <button @click="goLive">立即学习</button>
     </div>
     <!-- 评论 -->
-    <ul class="review">
-      <li class="review-item" v-for="item in reviewList" :key="item.ReviewID">
-        <div class="user">
-          <div class="avatar">
-            <img :src="'https://img.xlxt.net/' + item.HeadImg" alt="">
-          </div>
-          <div class="name">
-            <p>{{item.Name}}</p>
-            <time>{{item.AddTime | reviewFormat}}</time>
-          </div>
-          <div class="star">
-            <el-rate v-model="item.Star" :allow-half="true" :void-icon-class="'iconfont icon-yduixingxingkongxin'" :icon-classes="['iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin']"></el-rate>
-          </div>
-        </div>
-        <p>{{item.Content}}</p>
-      </li>
-    </ul>
+    <div class="review" v-show="type == 2">
+      <scroll class="review-menu" :data="reviewList" :pullup="pullup" @scrollToEnd="scrollToEnd">
+        <ul>
+          <li class="review-item" v-for="item in reviewList" :key="item.ReviewID">
+            <div class="user">
+              <div class="avatar">
+                <img :src="item.HeadImg ? 'https://img.xlxt.net/' + item.HeadImg : 'https://img.xlxt.net/photoManage/2019/11/25/157466529000091475.jpg'" alt="">
+              </div>
+              <div class="name">
+                <p>{{item.Name}}</p>
+                <time>{{item.AddTime | reviewFormat}}</time>
+              </div>
+              <div class="star">
+                <el-rate v-model="item.Star" :allow-half="true" :void-icon-class="'iconfont icon-yduixingxingkongxin'" :icon-classes="['iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin']"></el-rate>
+              </div>
+            </div>
+            <p class="review-content">{{item.Content}}</p>
+          </li>
+        </ul>
+      </scroll>
+      <button @click="goLive">立即学习</button>
+    </div>
   </div>
 </template>
 <script>
@@ -64,7 +68,7 @@ export default {
     },
     type: {
       type: Number,
-      default: 2
+      default: 0
     },
     chapterList: {
       type: Array,
@@ -73,11 +77,12 @@ export default {
   },
   data() {
     return {
-      rate: null,
+      rate: 0,
       pagesize: 15,
       pageindex: 1,
       courseID: 354,
-      reviewList: []
+      reviewList: [],
+      pullup: true
     }
   },
   created () {
@@ -93,9 +98,30 @@ export default {
       })
       if (result.Code === 200) {
         this.reviewList = result.Data
+        // 判断是否可上拉加载
+        if (this.pagesize * this.pageindex <= result.Count) {
+          this.pullup = true
+        } else {
+          this.pullup = false
+        }
       }
-      console.log(result)
     },
+    // 评论滚动
+    scrollToEnd () {
+      if (!this.pullup) {
+        return 
+      }
+      this.pagesize+=15
+      this._GetReview()
+    },
+    goLive () {
+      this.$router.push({
+        path: '/livevideo',
+        query: {
+          id: this.$route.query.id
+        }
+      })
+    }
   },
   filters: {
     timeFormat (val) {
@@ -107,6 +133,9 @@ export default {
       return moment(val).format('YYYY.MM.DD HH:mm')
     }
   },
+  components: {
+    Scroll: () => import('@/components/Scroll')
+  }
 }
 </script>
 <style lang="less" scoped>
@@ -121,13 +150,15 @@ export default {
   padding: .46rem .3rem 0;
   .details, .chapter, .review {
     height: calc(~"100vh - .88rem - 4.52rem - .51rem - .23rem - .46rem");
+    // overflow: hidden;
+    position: relative;
     .title {
       display: flex;
       justify-content: space-between;
-      height: .56rem;
+      // height: .56rem;
       align-items: center;
       h2 {
-        font-size: .4rem;
+        font-size: .3rem;
         line-height: .56rem;
       }
       /deep/ .el-rate__icon, /deep/ .hover, /deep/ .el-rate__decimal {
@@ -181,9 +212,16 @@ export default {
         
       }
     }
+    .review-menu {
+      height: calc(~"100% - .8rem");
+      overflow: hidden;
+    }
     .review-item {
       padding: .34rem 0 .4rem;
       border-bottom: 1px solid #979797;
+      &:last-child {
+        border: 0;
+      }
       /deep/ .el-rate__icon, /deep/ .hover, /deep/ .el-rate__decimal {
         font-size: .4rem;
         transform: scale(1);
@@ -220,6 +258,11 @@ export default {
           right: 0;
         }
       }
+      .review-content {
+        font-size: .28rem;
+        line-height: .4rem;
+        color: #363636;
+      }
     }
     button {
       width: calc(~"100vw - .6rem");
@@ -231,6 +274,10 @@ export default {
       border-radius: .2rem .2rem 0 0;
       font-size: .3rem;
       color: #fff;
+    }
+    .isButton {
+      position: absolute;
+      bottom: 0;
     }
   }
 }
