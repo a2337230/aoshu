@@ -19,6 +19,10 @@ export const GetLive = (params) => ajax(BASE_URL + '/AD/GetAD', params)
 export const GetCourseByIDShow = (params) => ajax(BASE_URL + '/Course/GetCourseByIDShow', params)
 // 获取直播
 export const GetCoursewareByID = (params) => ajax(BASE_URL + '/Course/GetCoursewareByID', params)
+// 获取直播评论
+export const GetCourseMessage = (params) => ajax(BASE_URL + '/PM/GetCourseMessage', params)
+// 发表直播评论
+export const SendCourseMessage = (params) => ajax(BASE_URL + '/PM/SendCourseMessage', params, 'POST')
 // 获取课程目录
 export const GetChapterCoursewareShow = (params) => ajax(BASE_URL + '/Course/GetChapterCoursewareShow', params)
 // 获取课程评论

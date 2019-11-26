@@ -2,11 +2,11 @@
   <div class="course-ware">
     <header-box></header-box>
     <div class="video-box">
-      <div class="prism-player" id="J_prismPlayer" v-show="isAlready"></div>
       <div class="error" v-show="prepare">
         <p>{{errorText}}</p>
         <span>重试</span>
       </div>
+      <div class="prism-player" id="J_prismPlayer" v-show="isAlready"></div>
       <!-- <img src="./../common/LiveError.png" alt="" > -->
     </div>
     <div class="tabs">
@@ -16,27 +16,30 @@
     <!-- 内容区域 -->
     <div class="course-content">
       <div class="details" v-show="!tab">
-        <h2>标题</h2>
-        <p>浏览量： 123132</p>
-        <div class="content">213123213123123</div>
+        <h2>{{liveInfo.Name}}</h2>
+        <p>浏览量： {{liveInfo.BrowseNum}}</p>
+        <div class="content" v-html="liveInfo.Introduce"></div>
       </div>
       <div class="reivew" v-show="tab">
-        <ul class="reivew-menu">
-          <li class="reivew-item">
-            <div class="user">
-              <img src="./../common/1.jpg">
-              <div class="pet">
-                <p>12132</p>
-                <time>2019-11-11</time>
+        <scroll :data="reivewList" class="scroll">
+          <ul class="reivew-menu">
+            <li class="reivew-item" v-for="item in reivewList" :key="item.AddDate">
+              <div class="user">
+                <img :src="'https://img.xlxt.net/' + item.FromImg">
+                <div class="pet">
+                  <p>{{item.FromName}}</p>
+                  <time>{{item.AddDate | timeFormat}}</time>
+                </div>
               </div>
-            </div>
-            <div class="reivew-content">
-            </div>
-          </li>
-        </ul>
+              <div class="reivew-content">
+                {{item.Content}}
+              </div>
+            </li>
+          </ul>
+        </scroll>
         <div class="input-btn">
-          <input type="text" placeholder="我有话要说~">
-          <button>发表</button>
+          <input type="text" placeholder="我有话要说~" v-model="reivewContent" @blur="isBlur">
+          <button @click="submitReivew">发表</button>
         </div>
       </div>
     </div>
@@ -44,9 +47,10 @@
 </template>
 <script>
 import HeaderBox from '@/components/HeaderBox'
-import { GetCoursewareByID } from '@/api/index'
+import { GetCoursewareByID, GetCourseByIDShow, GetCourseMessage, SendCourseMessage } from '@/api/index'
 import $ from 'jquery'
 import moment from 'moment'
+import { Toast } from 'mint-ui'
 export default {
   name: 'live',
   data () {
@@ -61,17 +65,91 @@ export default {
       // 准备中
       prepare: true,
       // 错误提示
-      errorText: '直播尚未开始'
+      errorText: '直播尚未开始',
+      liveInfo: [],
+      // 评论
+      reivewContent: '',
+      // 评论列表
+      reivewList: [],
+      timer: '',
+      startTime: ''
     }
   },
   created () {
     this.coursewareID = this.$route.query.CoursewareID
+    this._GetCourseByIDShow()
     this._GetCoursewareByID()
   },
   methods: {
+    // 失去焦点
+    isBlur () {
+      var u = navigator.userAgent, app = navigator.appVersion
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      if (isiOS) {
+        document.body.scrollTop = 0;
+        setTimeout(() => {
+          window.scrollTo(0,0)
+        }, 100);
+      }
+    },
+    // 发表评论
+    async submitReivew () {
+      if (!this.reivewContent) {
+        Toast({
+          message: '评论内容不能为空',
+          duration: 2000
+        })
+        return
+      }
+      let result = await SendCourseMessage({
+        cid: this.$route.query.id,
+        cont: this.reivewContent,
+        toUserID: ''
+      })
+      if (result.Code === 200) {
+        this.reivewContent = ''
+        let result1 = await GetCourseMessage({
+          cid: this.$route.query.id,
+          state: -1,
+          pageindex: 1,
+          fromTime: moment(new Date().getTime()).format('YYYY/MM/DD HH:mm:ss.000')
+        })
+        this.reivewList = result1.Data.reverse()
+      }
+    },
     // 切换选项卡
     tabClick (index) {
       this.tab = index
+      if (index) {
+        this._GetCourseMessage()
+      } else {
+        clearTimeout(this.timer)
+      }
+    },
+    // 获取直播评论
+    async _GetCourseMessage (val) {
+      clearTimeout(this.timer)
+      if (this.tab) {
+        let result = await GetCourseMessage({
+          cid: this.$route.query.id,
+          state: -1,
+          pageindex: 1,
+          fromTime: moment(new Date().getTime()).format('YYYY/MM/DD HH:mm:ss.000')
+        })
+        this.reivewList = result.Data.reverse()
+        this.timer = setTimeout(() => {
+          this._GetCourseMessage()
+        }, 3000);
+        console.log(result)
+      }
+    },
+    // 获取直播详情
+    async _GetCourseByIDShow () {
+      let result = await GetCourseByIDShow({
+        courseID: this.$route.query.id
+      })
+      this.liveInfo = result.Data.c
+      console.log(result)
     },
     async _GetCoursewareByID () {
       let result = await GetCoursewareByID({
@@ -80,6 +158,7 @@ export default {
       })
       if (result.Code === 200) {
         this.LiveUrl = result.Data.LiveUrl
+        this.startTime = Number(result.Data.cw.StartDate.substring(6, result.Data.cw.StartDate.length - 2))
         let time = new Date().getTime()
         let start = Number(result.Data.cw.StartDate.substring(6, result.Data.cw.StartDate.length - 2))
         if (start > time) {
@@ -93,9 +172,7 @@ export default {
           this.isAlready = true
           this.initVideo()
         }
-        // console.log(time, start)
       }
-      
     },
     // 初始化播放器
     initVideo () {
@@ -106,20 +183,25 @@ export default {
         autoplay: false,
         isLive:true,//是不是直播
         source: this.LiveUrl,
-        useH5Prism: true
+        useH5Prism: true,
+        liveRetry: 9999,
+        liveStartTime: moment(this.startTime).format('YYYY/MM/DD HH:mm:ss')
       }, function (player) {
         //播放器创建好了
-        
+        console.log(moment(this.startTime).format('YYYY/MM/DD HH:mm:ss'))
+        $('.prism-setting-btn').hide()
+        $('.prism-cc-btn').hide()
       });
-      this.prepare = false
-      this.isAlready = true
+      // this.prepare = false
+      // this.isAlready = true
       this.player.on("canplay", () => {
-          console.log('直播正在进行');
-          this.prepare = false
-          this.isAlready = true
+        $('.prism-live-display')[0].innerText = '正在直播中...'
+        // console.log('直播正在进行');
+        this.prepare = false
+        this.isAlready = true
       });
       this.player.on("playing", () => {
-          console.log('直播正在进行');
+          // console.log('直播正在进行');
           this.prepare = false
           this.isAlready = true
       });
@@ -132,9 +214,10 @@ export default {
           // }
       });
       this.player.on("liveStreamStop", () => {   //直播流中断
-          console.log('直播中断');
-          this.isAlready = false
-          this.prepare = true
+        $('.prism-live-display')[0].innerText = '主播正在准备中...'
+        console.log('直播中断');
+        this.isAlready = false
+        this.prepare = true
           // isLiveEnd = true;
           // $('#J_prismPlayer').remove();
           // $("#ww_videoPlay").empty();
@@ -144,11 +227,13 @@ export default {
           // });
       });
       this.player.on("onM3u8Retry", () => {   //直播流中断
-          console.log('直播中断恢复');
-          this.isAlready = false
-          this.prepare = true
+        $('.prism-live-display')[0].innerText = '主播正在准备中...'
+        // console.log('直播中断恢复');
+        this.isAlready = false
+        this.prepare = true
       });
       this.player.on("ended", function () {
+        $('.prism-live-display')[0].innerText = '直播已结束'
           console.log('直播结束');
           // $("#ww_videoPlay").empty();
           // $('#J_prismPlayer').remove();
@@ -157,8 +242,15 @@ export default {
     }
 
   },
+  filters: {
+    timeFormat (val) {
+      let time = Number(val.substring(6, val.length -2))
+      return moment(time).format('YYYY.MM.DD HH:mm:ss')
+    }
+  },
   components: {
-    HeaderBox
+    HeaderBox,
+    Scroll: () => import('@/components/Scroll')
   }
 }
 </script>
@@ -171,14 +263,35 @@ export default {
     padding: .32rem .3rem;
     width: 6.9rem;
     height: 3.88rem;
-    background-color: #000;
+    overflow: hidden;
+    position: relative;
+    // background-color: #000;
+    // #J_prismPlayer {
+    //   width: 0 !important;
+    //   height: 0 !important;
+    //   overflow: hidden;
+    // }
+    // /deep/ video {
+    //   width: 0;
+    //   height: 0;
+    //   display: none;
+    // }
+    /deep/ .prism-player .prism-marker-text {
+      display: none;
+    }
     .error {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
       color: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-top: 1.2rem;
+      // padding-top: 1.2rem;
+      justify-content: center;
       font-size: .26rem;
+      border-radius: .2rem;
+      overflow: hidden;
       span {
         margin-top: .2rem;
         width: .6rem;
@@ -187,7 +300,6 @@ export default {
         border: 1px solid #fff;
         border-radius: .4rem;
         line-height: .5rem;
-
       }
     }
   }
@@ -247,12 +359,23 @@ export default {
     }
     .reivew {
       height: 100%;
-      .reivew-menu {
+      .scroll {
         height: calc(~"100% - .8rem");
+        overflow: hidden;
+      }
+      .reivew-menu {
+        // height: calc(~"100% - .8rem");
+        // overflow: hidden;
       }
       .reivew-item {
-        padding-bottom: .3rem;
+        padding: .3rem 0;
         border-bottom: 1px solid #979797;
+        &:first-child {
+          padding-top: 0;
+        }
+        &:last-child {
+          border: 0;
+        }
         .user {
           height: .8rem;
           display: flex;
@@ -317,7 +440,8 @@ export default {
           border-radius: .3rem;
           background-color: #fff;
           color: #006B45;
-          font-size: .3rem;
+          font-size: .26rem;
+          white-space: nowrap;
         }
       } 
     }

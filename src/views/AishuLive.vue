@@ -6,7 +6,7 @@
       <li @click="goLive(item)" v-for="item in liveMenu" :key="item.ADID">
         <img :src="'https://img.xlxt.net' + item.ImgUrl">
         <div class="live-status">
-          <p>{{item.Sort| statusFormat}}</p>
+          <p :class="item.Sort | classFormat">{{item.Sort| statusFormat}}</p>
         </div>
         <div class="title-box">
           <h3>{{item.Name}}</h3>
@@ -92,6 +92,18 @@ export default {
         title = '观看录播'
       }
       return title
+    },
+    classFormat (val) {
+      let color = ''
+      if (!val) {
+        color = 'yellow'
+      } else if (val == 1) {
+        color = 'red'
+      } else {
+        color = 'green'
+      }
+      return color
+      console.log(val)
     }
   },
   components: {
@@ -123,9 +135,10 @@ export default {
       width: 1.67rem;
       height: .51rem;
       border-radius:0 0 0 .2rem;
-      background-color: #000;
+      // background-color: #000;
       color: #fff;
       text-align: center;
+      overflow: hidden;
       p {
         font-size: .3rem;
         line-height: .51rem;
@@ -155,5 +168,14 @@ export default {
       }
     }
   }
+}
+.yellow {
+  background-color: #FA8C15;
+}
+.red {
+  background-color: #FF0000;
+}
+.green {
+  background-color: #01442C;
 }
 </style>
