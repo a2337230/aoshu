@@ -240,7 +240,11 @@ export default {
           // $("#ww_videoPlay").append("<img src='../../images/product/HasEnded.png'/>")
       });
     }
-
+  },
+  destroyed () {
+    clearTimeout(this.timer)
+    this.tab = 0
+    this.player.dispose()
   },
   filters: {
     timeFormat (val) {
