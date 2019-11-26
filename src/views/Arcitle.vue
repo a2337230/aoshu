@@ -2,10 +2,10 @@
   <div class="arcitle">
     <!-- 头部 -->
     <header-box></header-box>
-    <scroll class="scroll-arcitle arcitle-content" :data="arcitleInfo">
+    <scroll class="scroll-arcitle arcitle-content" :data="arcitleInfo"  v-if="arcitleInfo">
       <div v-if="!arcitleInfo">
       </div>
-      <div class="arcitle-container" v-if="arcitleInfo">
+      <div class="arcitle-container" @click="isInputBlur">
         <div class="banner">
           <img :src="'https://img.xlxt.net/' + arcitleInfo.PreviewUrl" alt="">
           <!-- <div class="go-back">
@@ -54,7 +54,7 @@
     </scroll>
     <!-- 底部评论 -->
     <div class="footer-reivew">
-      <input type="text" class="isInput" placeholder="发表您的评论..." v-model="reviewContent" @keyup.enter="submitReview" @focus="isLoginFocus">
+      <input type="text" class="isInput" placeholder="发表您的评论..." v-model="reviewContent" @keyup.enter="submitReview" @focus="isLoginFocus" @blur="iosBlur">
       <div class="zhuan" @click="transmit">
         <div class="share-icon"
             v-clipboard:copy="isHref" 
@@ -125,8 +125,16 @@ export default {
   },
   methods: {
     // 兼容ios
-    iosView () {
-
+    iosBlur () {
+      var u = navigator.userAgent, app = navigator.appVersion
+      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      if (isiOS) {
+        window.scrollTo(0,0)
+      }
+    },
+    // 点击其他区域失去焦点
+    isInputBlur () {
+      document.querySelector('.isInput').blur()
     },
     // 不需要登录接口
     async _ArticleInfo2 () {
@@ -159,43 +167,27 @@ export default {
     },
     // 发表评论前验证登录
     isLoginFocus () {
-      // if (!this.user) {
-      //   this.reviewContent = ''
-      //   this.bulr()
-      //   MessageBox({
-      //     title: '提示',
-      //     message: '登录后可以评论',
-      //     showConfirmButton: true,
-      //     showCancelButton: true,
-      //     confirmButtonText: '登录'
-      //   }).then(action => {
-      //     if (action === 'confirm') {
-      //       window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + this.isHref
-      //     }
-      //   }) 
-      //   return 
-      // }
+      if (!this.user) {
+        this.reviewContent = ''
+        this.bulr()
+        MessageBox({
+          title: '提示',
+          message: '登录后可以评论',
+          showConfirmButton: true,
+          showCancelButton: true,
+          confirmButtonText: '登录'
+        }).then(action => {
+          if (action === 'confirm') {
+            window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + this.isHref
+          }
+        }) 
+        return 
+      }
       var u = navigator.userAgent, app = navigator.appVersion
       let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
       // alert(isiOS)
       if (isiOS) {
         window.scrollTo(0,0)
-        // document.title = document.documentElement.scrollIntoView(true)
-        // setTimeout(function(){document.documentElement.scrollIntoView(true)},200);
-        // });
-        // let dom = document.documentElement
-        // let h = window.innerHeight
-        // mTween({
-        //   el: dom,
-        //   attr: {
-        //     translateY: -window.innerHeight
-        //   },
-        //   time: 2000
-        // })
-        setInterval(() => {
-          // document.documentElement.scrollIntoView(true)
-          document.title = window.innerHeight
-        }, 20);
       }
     },
     // 发表评论
@@ -321,7 +313,7 @@ export default {
     }
   }
   .content {
-    padding: 0 .3rem;
+    padding: 0 .3rem 1rem;
     h1 {
       color: #333;
       font-size: .5rem;
@@ -412,6 +404,8 @@ export default {
     align-items: center;
     padding: 0 .3rem;
     box-sizing: border-box;
+    position: fixed;
+    bottom: 0;
     input {
       width: 5.72rem;
       height: .68rem;

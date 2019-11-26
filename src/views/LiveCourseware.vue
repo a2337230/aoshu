@@ -192,8 +192,6 @@ export default {
         $('.prism-setting-btn').hide()
         $('.prism-cc-btn').hide()
       });
-      // this.prepare = false
-      // this.isAlready = true
       this.player.on("canplay", () => {
         $('.prism-live-display')[0].innerText = '正在直播中...'
         // console.log('直播正在进行');
@@ -207,24 +205,12 @@ export default {
       });
       this.player.on("error", function () {
           console.log('直播失败');
-          // if(!isLiveEnd){
-          //     $('#J_prismPlayer').remove();
-          //     $("#ww_videoPlay").empty();
-          //     $("#ww_videoPlay").append("<img src='../../images/product/NotStarted.png'/>")
-          // }
       });
       this.player.on("liveStreamStop", () => {   //直播流中断
         $('.prism-live-display')[0].innerText = '主播正在准备中...'
         console.log('直播中断');
         this.isAlready = false
         this.prepare = true
-          // isLiveEnd = true;
-          // $('#J_prismPlayer').remove();
-          // $("#ww_videoPlay").empty();
-          // $("#ww_videoPlay").append("<img id='imgDom' src='../../images/product/LiveError.png'/>")
-          // $("#ww_videoPlay").on('click',function () {
-          //     location.reload(true);
-          // });
       });
       this.player.on("onM3u8Retry", () => {   //直播流中断
         $('.prism-live-display')[0].innerText = '主播正在准备中...'
@@ -235,9 +221,6 @@ export default {
       this.player.on("ended", function () {
         $('.prism-live-display')[0].innerText = '直播已结束'
           console.log('直播结束');
-          // $("#ww_videoPlay").empty();
-          // $('#J_prismPlayer').remove();
-          // $("#ww_videoPlay").append("<img src='../../images/product/HasEnded.png'/>")
       });
     }
   },
