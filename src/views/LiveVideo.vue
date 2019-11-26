@@ -3,7 +3,7 @@
     <header-box></header-box>
     <!-- 视频播放 -->
     <div class="video">
-
+      <video-box :VideoId="VideoId" v-if="VideoId"></video-box>
     </div>
     <tabs @cuttentTabs="cuttentTabs" :type="1"></tabs>
     <!-- 详情区域 -->
@@ -37,7 +37,7 @@
                     <img src="./../common/play.png" alt="">
                     <p>{{citem.Name}}</p>
                   </div>
-                  <time>{{citem.TimeLength | timeFormat}}</time>
+                  <!-- <time>{{citem.TimeLength | timeFormat}}</time> -->
                 </li>
               </ul>
             </div>
@@ -46,7 +46,7 @@
       </div>
       <scroll class="review"  v-if="type == 2" :data="reviewList" :pullup="pullup" @scrollToEnd="scrollToEnd">
         <div class="review-container">
-          <p class="star">评价该课程： <el-rate v-model="Star" :allow-half="true" :void-icon-class="'iconfont icon-yduixingxingkongxin'" :icon-classes="['iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin']"></el-rate></p>
+          <p class="star">评价该课程： <el-rate v-model="Star" :void-icon-class="'iconfont icon-yduixingxingkongxin'" :icon-classes="['iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin']"></el-rate></p>
           <el-input
             type="textarea"
             :rows="4"
@@ -54,7 +54,7 @@
             v-model="textarea">
           </el-input>
           <div class="btn-container">
-            <mt-button type="primary" size="large">发表评论</mt-button>
+            <mt-button type="primary" size="large" @click="addReivew">发表评论</mt-button>
           </div>
           <ul>
             <li class="review-item" v-for="item in reviewList" :key="item.ReviewID">
@@ -81,8 +81,10 @@
 <script>
 import HeaderBox from '@/components/HeaderBox'
 import Tabs from '@/components/Tabs'
-import { GetCourseByIDShow, GetChapterCoursewareShow, GetReview } from '@/api/index'
+import VideoBox from '@/components/Video'
+import { GetCourseByIDShow, GetChapterCoursewareShow, GetReview, AddCourseReview, GetCoursewareByIDShow } from '@/api/index'
 import moment from 'moment'
+import { Toast } from 'mint-ui'
 export default {
   name: 'live-video',
   data() {
@@ -92,11 +94,13 @@ export default {
       reviewList: [],
       type: 1,
       id: 0,
-      Star: null,
+      CoursewareID: 0,
+      Star: 5,
       textarea: '',
       pagesize: 15,
       pageindex: 1,
-      pullup: true
+      pullup: true,
+      VideoId: ''
     }
   },
   created () {
@@ -105,10 +109,27 @@ export default {
     this._GetChapterCoursewareShow()
     this._GetReview()
   },
+  watch: {
+    Star (val) {
+      console.log(val)
+    }
+  },
   methods: {
     cuttentTabs (val) {
       console.log(val)
       this.type = val
+    },
+    // 获取直播视频
+    async _GetCoursewareByIDShow () {
+      let result = await GetCoursewareByIDShow({
+        courseID: this.id,
+        coursewareID: this.CoursewareID,
+        type: 0
+      })
+      if (result.Code === 200) {
+        this.VideoId = result.Data.cw.BaofengFileName
+      }
+      console.log(result)
     },
     // 获取直播详情
     async _GetCourseByIDShow () {
@@ -127,8 +148,10 @@ export default {
       })
       if (result.Code === 200) {
         this.chapterList = result.Data.List
+        this.CoursewareID = result.Data.List[0].courseware[0].CoursewareID
+        this._GetCoursewareByIDShow()
       }
-      console.log(result)
+      console.log(this.CoursewareID)
     },
     // 获取课程评论
     async _GetReview () {
@@ -146,6 +169,23 @@ export default {
           this.pullup = false
         }
       }
+    },
+    // 发表评论
+    async addReivew () {
+      let result = await AddCourseReview({
+        content: this.textarea,
+        courseID: this.id,
+        verify: true,
+        star: this.Star
+      })
+      if (result.Code === 200) {
+        Toast({
+          message: '评价成功',
+          iconClass: 'iconfont icon-xiaolianchenggong'
+        })
+        this._GetReview()
+      }
+      console.log(result)
     },
     // 评论滚动
     scrollToEnd () {
@@ -169,6 +209,7 @@ export default {
   components: {
     HeaderBox,
     Tabs,
+    VideoBox,
     Scroll: () => import('@/components/Scroll')
   }
 }
@@ -180,7 +221,7 @@ export default {
   // overflow: hidden;
   .video {
     padding: .32rem .3rem 0;
-    background-color: #fff;
+    // background-color: #fff;
     width: 6.9rem;
     height: 3.88rem;
     margin-bottom: .32rem;
@@ -260,7 +301,7 @@ export default {
         display: flex;
         line-height: .4rem;
         font-size: .3rem;
-        // margin-bottom: .3rem;
+        padding-bottom: .3rem;
       }
       .btn-container {
         padding: .2rem 0;

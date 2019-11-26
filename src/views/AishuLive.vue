@@ -3,14 +3,14 @@
      <!-- 头部 -->
     <header-box></header-box>
     <ul class="aishu-list">
-      <li @click="goLive(item.Sort)" v-for="item in liveMenu" :key="item.ADID">
+      <li @click="goLive(item)" v-for="item in liveMenu" :key="item.ADID">
         <img :src="'https://img.xlxt.net' + item.ImgUrl">
         <div class="live-status">
-          <p>{{item | statusFormat}}</p>
+          <p>{{item.Sort| statusFormat}}</p>
         </div>
         <div class="title-box">
           <h3>{{item.Name}}</h3>
-          <p>{{item.StartDate | timeFormat}} - {{item.EndDate | timeFormat}}</p>
+          <p>{{item.ADUrl | startFormat}} - {{item.ADUrl | endFormat}}</p>
         </div>
       </li>
     </ul>
@@ -19,6 +19,7 @@
 <script>
 import HeaderBox from '@/components/HeaderBox'
 import moment from 'moment'
+import { Toast } from 'mint-ui';
 import { GetLive } from '@/api/index'
 export default {
   name: 'aishulive',
@@ -32,12 +33,28 @@ export default {
   },
   methods: {
     goLive (val) {
-      this.$router.push({
-        name: '直播',
-        query: {
-          id: val
-        }
-      })
+      // 0 敬请期待 1 正在直播 2 观看录播
+      let id = Number(val.ADUrl.split(',')[2].split(':')[1])
+      let CoursewareID = Number(val.ADUrl.split(',')[3].split(':')[1])
+      if (!val.Sort) {
+        Toast('直播尚未开始')
+      } else if (val.Sort == 1) {
+        this.$router.push({
+          name: '直播页',
+          query: {
+            id: id,
+            CoursewareID: CoursewareID
+          }
+        })
+      } else if (val.Sort == 2) {
+        this.$router.push({
+          name: '课程播放页',
+          query: {
+            id: id,
+            CoursewareID: CoursewareID
+          }
+        })
+      }
     },
     // 获取直播列表
     async getLive () {
@@ -55,26 +72,25 @@ export default {
     }
   },
   filters: {
-    timeFormat (val) {
-      let time = val.substring(6, val.length - 2)
-      return moment(val).format('YYYY.MM.DD HH:mm:ss')
+    startFormat (val) {
+      // let date = val
+      let time = val.split(',')[0].split(':')[1]
+      return moment(Number(time)).format('YYYY.MM.DD HH:mm')
+    },
+    endFormat (val) {
+      let time = val.split(',')[1].split(':')[1]
+      return moment(Number(time)).format('YYYY.MM.DD HH:mm')
     },
     statusFormat (val) {
       // 0 敬请期待 1 正在直播 2 观看录播
-      let time = (new Date).getTime()
-      let start = val.StartDate.substring(6, val.StartDate.length- 2)
-      let end = val.EndDate.substring(6, val.EndDate.length - 2)
       let title = ''
-
-      if (time < start) {
+      if (!val) {
         title = '敬请期待'
-      } else if (time > start && time <= end) {
+      } else if (val == 1) {
         title = '正在直播'
-      } else if (time > end) {
+      } else if (val == 2) {
         title = '观看录播'
       }
-      val.status = title
-      console.log(val)
       return title
     }
   },

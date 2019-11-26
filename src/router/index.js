@@ -32,8 +32,13 @@ export default new Router({
     },
     {
       path: '/livevideo',
-      name: '直播播放页',
+      name: '课程播放页',
       component: () => import('@/views/LiveVideo')
+    },
+    {
+      path: '/Course_Live',
+      name: '直播页',
+      component: () => import('@/views/LiveCourseware')
     }
   ]
 })
