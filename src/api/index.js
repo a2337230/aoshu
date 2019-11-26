@@ -33,3 +33,5 @@ export const AddCourseReview = (params) => ajax(BASE_URL + '/Review/AddReview', 
 export const VideoPlay = (params) => ajax(BASE_URL + '/Course/GetPlayAuthByVideoID', params)
 // 课程播放
 export const GetCoursewareByIDShow = (params) => ajax(BASE_URL + '/Course/GetCoursewareByIDShow', params)
+// 判断是否登录
+export const GetMemberInfo = (params) => ajax(BASE_URL + '/Member/GetMemberInfo', params)
