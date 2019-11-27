@@ -5,12 +5,17 @@
     <div class="video">
       <video-box :VideoId="VideoId" v-if="VideoId"></video-box>
     </div>
-    <tabs @cuttentTabs="cuttentTabs" :type="1"></tabs>
+    <tabs @cuttentTabs="cuttentTabs"></tabs>
     <!-- 详情区域 -->
     <div class="details">
+      <div class="detail" v-show="type === 0">
+        <h1>{{liveInfo.Name}}</h1>
+        <p>播放量：<span>{{liveInfo.BrowseNum}}</span></p>
+        <div class="content" v-html="liveInfo.Introduce"></div>
+      </div>
       <div class="info" v-show="type == 1">
-        <h2>{{liveInfo.Name}}</h2>
-        <p>浏览量： {{liveInfo.BrowseNum}}</p>
+        <!-- <h2>{{liveInfo.Name}}</h2>
+        <p>浏览量： {{liveInfo.BrowseNum}}</p> -->
         <!-- <ul class="info-menu">
           <li v-for="(item, index) in chapterList" :key="index">
             <h3>{{item.chapter.Name}}</h3>
@@ -35,7 +40,9 @@
                 <li v-for="(citem, cindex) in item.courseware" :key="cindex" class="chapter-item">
                   <div class="chapter-item-title">
                     <img src="./../common/play.png" alt="">
-                    <p>{{citem.Name}}</p>
+                    <div class="chapter-name">
+                      <p>{{citem.Name}}</p>
+                    </div>
                   </div>
                   <!-- <time>{{citem.TimeLength | timeFormat}}</time> -->
                 </li>
@@ -106,7 +113,8 @@ export default {
       pullup: true,
       VideoId: '',
       isLogin: '',
-      isVerify: false
+      isVerify: false,
+      timer: ''
     }
   },
   created () {
@@ -163,6 +171,27 @@ export default {
     },
     cuttentTabs (val) {
       this.type = val
+      clearInterval(this.timer)
+      if (val == 1) {
+        // 超过宽度自动滚动
+        this.$nextTick(() => {
+          let dom = document.querySelector('.chapter-name')
+          let child = dom.querySelector('p')
+          child.innerText = child.innerText + '\xa0\xa0\xa0\xa0\xa0\xa0'
+          if (dom.clientWidth < child.clientWidth) {
+            this.timer = setInterval(() => {
+              let title = child.innerText.split('')
+              let one = title.shift()
+              if (one === '\xa0') {
+                title.push(one)
+                one = title.shift()
+              }
+              title.push(one)
+              child.innerText = title.join('')
+            }, 300)
+          }
+        })
+      }
     },
     // 获取直播视频
     async _GetCoursewareByIDShow () {
@@ -284,6 +313,29 @@ export default {
     box-sizing: border-box;
     padding: .46rem .4rem 0;
     overflow: hidden;
+
+    .detail {
+      color: #333;
+      height: calc(~"100% - .3rem");
+      overflow-y: scroll;
+      &::-webkit-scrollbar {display:none}
+      h1 {
+        font-size: .3rem;
+      }
+      p {
+        font-size: .26rem;
+        font-weight: lighter;
+        line-height: .6rem;
+        margin-bottom: .4rem;
+        span {
+          font-weight: normal;
+        }
+      }
+      .content {
+        font-size: .3rem;
+        line-height: .42rem;
+      }
+    }
     .info {
       h2 {
         font-size: .3rem;
@@ -294,6 +346,7 @@ export default {
         line-height: .42rem;
         color: #333;
         margin-bottom: .33rem;
+        // white-space: nowrap;
       }
       .chapter-menu {
         height: calc(~"100% - .8rem");
@@ -314,19 +367,29 @@ export default {
           justify-content: space-between;
           .chapter-item-title {
             display: flex;
+            height: .3rem;
             align-items: center;
             img {
               width: .2rem;
               height: .3rem;
               margin-right: .3rem;
             }
-            p {
-              line-height: .3rem;
-              margin-bottom: 0;
+            .chapter-name {
+              width: 5rem;
+              height: .4rem;
+              overflow: hidden;
               position: relative;
-              top: -0.03rem;
-              color: #006B45;
+              p {
+                position: absolute;
+                top: 0;
+                left: 0;
+              // line-height: .3rem;
+                margin-bottom: 0;
+                color: #006B45;
+                white-space: nowrap;
+              }
             }
+            
             
           }
           time {

@@ -54,8 +54,8 @@
     </scroll>
     <!-- 底部评论 -->
     <div class="footer-reivew">
-      <input type="text" class="isInput" placeholder="发表您的评论..." v-model="reviewContent" @keyup.enter="submitReview" @focus="isLoginFocus" @blur="iosBlur">
-      <div class="zhuan" @click="transmit">
+      <input type="url" class="isInput" placeholder="发表您的评论..." v-model="reviewContent" @keyup.enter="submitReview" @focus="isLoginFocus" @blur="iosBlur">
+      <div class="zhuan" @click="transmit" v-show="!upspring">
         <div class="share-icon"
             v-clipboard:copy="isHref" 
             v-clipboard:success="copy" 
@@ -66,6 +66,7 @@
         </div>
         <img src="./../common/zf.png" v-else>
       </div>
+      <span class="btn" v-show="upspring" @click="submitReview">发送</span>
     </div>
     <share @closeShare="closeShare" v-if="isShare" :data="arcitleInfo"></share>
     <verify-box v-if="isVerify" @closeDialog="closeDialog"></verify-box>
@@ -79,6 +80,7 @@ import {ArticleInfo1,ArticleInfo2,GetReviewFront,AddReview,AddReviewLike,CheckAp
 import { Toast, MessageBox } from 'mint-ui'
 import moment from 'moment'
 import util from '@/util/util.js'
+import $ from 'jquery'
 import '@/common/js/mTween.js'
 export default {
   name: 'arcitle',
@@ -102,7 +104,9 @@ export default {
       noLike: require('./../common/nozan.png'),
       isShare: false,
       // 是否验证
-      isVerify: false
+      isVerify: false,
+      // 键盘是否弹起
+      upspring: false
     }
   },
   created () {
@@ -128,7 +132,29 @@ export default {
   },
   mounted () {
     this.isHref = window.location.href
-
+    // 键盘弹起处理
+    let u = navigator.userAgent
+    let isAnd = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1
+    let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+    if (isAnd) {
+      let oh = document.documentElement.clientHeight || document.body.clientHeight
+      window.addEventListener("resize", () => {
+        let rh = document.documentElement.clientHeight || document.body.clientHeight
+        if (rh < oh) { 
+          this.upspring = true
+        } else {
+          this.upspring = false
+        }
+      })
+    }
+    if (isIOS) {
+      document.body.addEventListener('focusin', () => {  //软键盘弹起事件
+        this.upspring = true
+      })
+      document.body.addEventListener('focusout', () => { //软键盘关闭事件
+        this.upspring = false
+      })
+    }
   },
   methods: {
     // 兼容ios
@@ -199,12 +225,11 @@ export default {
           return
         } 
       }
-      var u = navigator.userAgent, app = navigator.appVersion
-      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
-      // alert(isiOS)
-      if (isiOS) {
-        window.scrollTo(0,0)
-      }
+      // var u = navigator.userAgent, app = navigator.appVersion
+      // let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      // if (isiOS) {
+      //   window.scrollTo(0,0)
+      // }
     },
     // 发表评论
     async submitReview () {
@@ -261,25 +286,25 @@ export default {
   watch: {
     arcitleInfo () {
       // 兼容ios
-      var u = navigator.userAgent, app = navigator.appVersion
-      let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
-      if (isiOS) {
-        this.$nextTick(() => {
-          let header = document.querySelector('.header')
-          let content = document.querySelector('.arcitle-content')
-          let footer = document.querySelector('.footer-reivew')
-          // 可是区高度
-          let domHeight = window.innerHeight
-          // 头部高度
-          let headerHeight = header.clientHeight
-          // 底部高度
-          let footerHeight = footer.clientHeight
-          document.documentElement.style.height = domHeight + 'px'
-          content.style.height = domHeight - headerHeight - footerHeight + 'px'
-          console.log(content)
-          // alert(window.innerHeight,document.d)
-        })
-      }
+      // var u = navigator.userAgent, app = navigator.appVersion
+      // let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+      // if (isiOS) {
+      //   this.$nextTick(() => {
+      //     let header = document.querySelector('.header')
+      //     let content = document.querySelector('.arcitle-content')
+      //     let footer = document.querySelector('.footer-reivew')
+      //     // 可是区高度
+      //     let domHeight = window.innerHeight
+      //     // 头部高度
+      //     let headerHeight = header.clientHeight
+      //     // 底部高度
+      //     let footerHeight = footer.clientHeight
+      //     document.documentElement.style.height = domHeight + 'px'
+      //     content.style.height = domHeight - headerHeight - footerHeight + 'px'
+      //     console.log(content)
+      //     // alert(window.innerHeight,document.d)
+      //   })
+      // }
     }
   },
   filters: {
@@ -452,6 +477,17 @@ export default {
         width: .48rem;
         height: .46rem;
       }
+    }
+    .btn {
+      display: inline-block;
+      width: 1rem;
+      white-space: nowrap;
+      text-align: center;
+      height: .68rem;
+      background-color: #006B45;
+      border-radius: .4rem;
+      line-height: .68rem;
+      color: #fff;
     }
   }
 }

@@ -4,7 +4,7 @@
       <div class="go-back" @click="goBack">
         <img :src="require('./../common/back.png')" alt="">
       </div>
-      <p>杨森直播专区</p>
+      <p>{{header}}</p>
     </div>
   </header>
 </template>
@@ -17,13 +17,49 @@ export default {
       default: ''
     }
   },
+  data() {
+    return {
+      name: '',
+      header: ''
+    }
+  },
+  created () {
+    let path = this.$route.name
+    if (path === '艾舒专区') {
+      document.title = this.header = '艾舒专区'
+      // window.location.href = 'https://www2.xlxt.net'
+    } else if (path === '艾舒直播专区' || path === '文章') {
+      if (path === '艾舒直播专区') {
+        document.title = this.header = '杨森艾舒专区'
+      } else {
+        document.title = this.header = '文章'
+      }
+      this.name = '艾舒专区'
+    } else if (path === '直播页' || path === '课程播放页') {
+      if (path === '直播页') {
+        document.title = this.header = '杨森艾舒直播'
+      } else {
+        document.title = this.header = '杨森艾舒录播'
+      }
+      this.name = '艾舒直播专区'
+    } 
+  },
   methods: {
     goBack () {
-      if (this.url) {
-        this.$router.push(this.url)
+      let path = this.$route.name
+      if (path === '艾舒专区') {
+        window.location.href = 'https://www2.xlxt.net'
         return
-      }
-      this.$router.go(-1)
+      } 
+      this.$router.push({
+        name: this.name
+      })
+      console.log(path)
+      // if (this.url) {
+      //   this.$router.push(this.url)
+      //   return
+      // }
+      // this.$router.go(-1)
     }
   }
 }

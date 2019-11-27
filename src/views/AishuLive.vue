@@ -128,10 +128,35 @@ export default {
       let result = await GetLive({
         positionCode: 'AI_SHU_LIVE'
       })
-      this.liveMenu = result.Data.sort((n1,n2) => {
-        return n2.ADID - n1.ADID
+      console.log(result.Data[0].ADUrl.split(',')[0].split(':')[1])
+      let data = []
+      let formatData = []
+      data = result.Data.sort((n1,n2) => {
+        return Number(n2.ADUrl.split(',')[0].split(':')[1]) - Number(n1.ADUrl.split(',')[1].split(':')[1]) 
       })
-      console.log(result)
+      data.forEach(item => {
+        if (item.Sort == 1) {
+          let start = Number(item.ADUrl.split(',')[0].split(':')[1])
+          let time = new Date().getTime()
+          if (start > time) {
+            item.Sort = 4
+          }
+        }
+      })
+      // 正在直播
+      let sort1 = data.filter(item => item.Sort == 1)
+      // 准备直播
+      let sort4 = data.filter(item => item.Sort == 4)
+      // 观看录播
+      let sort2 = data.filter(item => item.Sort == 2)
+      // 敬请期待
+      let sort0 = data.filter(item => item.Sort == 0)
+      formatData = formatData.concat(sort1).concat(sort4).concat(sort2).concat(sort0)
+      // formatData.push(data.filter(item => item.Sort == 1))
+      // formatData.push(data.filter(item => item.Sort == 2))
+      // formatData.push(data.filter(item => item.Sort == 0))
+      this.liveMenu = formatData
+      console.log(formatData)
     },
     // 判断直播状态
     statusLive (val1, val2) {
@@ -160,6 +185,8 @@ export default {
         title = '正在直播'
       } else if (val == 2) {
         title = '观看录播'
+      } else if (val == 4) {
+        title = '准备直播'
       }
       return title
     },
@@ -176,6 +203,8 @@ export default {
         } else {
           color = 'red'
         }
+      } else if (val.Sort == 4) {
+        color = 'start'
       } else {
         color = 'green'
       }
@@ -257,5 +286,8 @@ export default {
 }
 .noColor {
   display: none;
+}
+.start {
+  background-color: #1e90ff;
 }
 </style>
