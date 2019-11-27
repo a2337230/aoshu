@@ -12,7 +12,9 @@
           </ul>
         </div>
       </div>
-      
+      <div class="btn-container">
+        确定
+      </div>
     </div>
   </div>
 </template>
@@ -516,7 +518,6 @@ export default {
         formatData = formatData.replace(new RegExp(content,'gm'), `<span style='color: red'>${content}</span>`)
         this.selectList = formatData.split(',')
         this.selectShow = true
-        console.log(formatData)
       }
       // text.forEach(item => {
       //   data = data.filter(citem => citem.includes(item))
@@ -609,6 +610,17 @@ export default {
         }
         li::-webkit-scrollbar {display:none}
       }
+    }
+    .btn-container {
+      width: 100%;
+      height: .88rem;
+      background-color: #006B45;
+      margin-top: .73rem;
+      border-radius: .44rem;
+      text-align: center;
+      line-height: .88rem;
+      color: #fff;
+      font-size: .3rem;
     }
   }
 }

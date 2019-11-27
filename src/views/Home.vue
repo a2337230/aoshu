@@ -26,13 +26,13 @@
         </div>
       </div>
     </scroll>
-    <verify-box></verify-box>
+    <verify-box v-if="isVerify"></verify-box>
   </div>
 </template>
 <script>
 import HeaderBox from '@/components/HeaderBox'
 import Swiper from '@/components/Swiper'
-import { GetArticleShow, GetLive, GetMemberInfo } from '@/api/index'
+import { GetArticleShow, GetLive, GetMemberInfo, CheckAppUserJoinEnterprise } from '@/api/index'
 import { MessageBox } from 'mint-ui'
 // 企业认证
 import VerifyBox from '@/components/VerifyBox'
@@ -80,15 +80,32 @@ export default {
       ringID: '',
       // 文章
       arcitle: [],
-      isLogin: ''
+      isLogin: '',
+      // 是否验证
+      isVerify: false
     }
   },
   created () {
     this._GetMemberInfo()
     this.getRing()
     this.getArcitle()
+    // this._CheckAppUserJoinEnterprise()
   },
   methods: {
+    // 查询是否验证
+    async _CheckAppUserJoinEnterprise () {
+      let result = await CheckAppUserJoinEnterprise({type: 0})
+      if (result.Code == 10001) {
+        // 登录的是企业账号不需要绑定
+      } else if (result.Code == 200) {
+        if (!result.Data) {
+          // 是个人没有绑定过企业
+        } else {
+
+        }
+      }
+      console.log(result)
+    },
     // 判断是否登录
     async _GetMemberInfo () {
       let result = await GetMemberInfo()
@@ -110,7 +127,7 @@ export default {
       }
     },
     // 跳转知识擂台
-    goRing () {
+    async goRing () {
       // 如果没有登录
       if (!this.isLogin) {
         MessageBox({
@@ -126,20 +143,22 @@ export default {
         }) 
         return 
       }
+      // 查询是否绑定企业
+      let result = await CheckAppUserJoinEnterprise({type: 0})
+      if (result.Code == 200) {
+        if (!result.Data) {
+          // 是个人没有绑定过企业
+          this.isVerify = true
+          return
+        } 
+      }
       let ua = navigator.userAgent.toLowerCase();
-      // let ios = ua.indexOf("native_app_ios") > -1
       let android = ua.indexOf("glaer-android") > -1
-      // let iosWk = ua.indexOf("native_app_ios_wk") > -1
-      // if (this.iosWk) {
-      //   window.webkit.messageHandlers.goPlacementMatchesPage.postMessage(String(this.ringID))
-      // } else if (ios) {
-      //   window.goPlacementMatchesPage(String(this.ringID)) 
-      // } else 
       if (android) {
         window.android.goPlacementMatchesPage(this.ringID)
       } else {
         window.location.href = "https://m2.xlxt.net/examIndex.html#/arena/15006/base=aishu"
-      } 
+      }
     },
     // 点击四大专区卡片跳转
     goCard (val) {
