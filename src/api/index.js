@@ -35,3 +35,5 @@ export const VideoPlay = (params) => ajax(BASE_URL + '/Course/GetPlayAuthByVideo
 export const GetCoursewareByIDShow = (params) => ajax(BASE_URL + '/Course/GetCoursewareByIDShow', params)
 // 判断是否登录
 export const GetMemberInfo = (params) => ajax(BASE_URL + '/Member/GetMemberInfo', params)
+// 验证是否绑定企业
+export const CheckAppUserJoinEnterprise = (params) => ajax(BASE_URL + '/Member/CheckAppUserJoinEnterprise', params)

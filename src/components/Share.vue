@@ -3,13 +3,13 @@
     <ul class="share-container">
       <li class="icon">
         <div class="weixin">
-          <div class="imgs">
+          <div class="imgs" @click="goweixin('0')">
             <img src="./../common/weixin.png" alt="">
           </div>
           <p>微信好友</p>
         </div>
         <div class="weixin">
-          <div class="imgs">
+          <div class="imgs" @click="goweixin('1')">
             <img src="./../common/pengyouquan.png" class="pengyou">
           </div>
           <p>朋友圈</p>
@@ -35,17 +35,44 @@
 import { Toast } from 'mint-ui'
 export default {
   name: 'share',
-  data() {
-    return {
-      isHref: window.location.href
+  props: {
+    data: {
+      type: Object,
+      default: () => { return {} }
     }
   },
+  data() {
+    return {
+      isHref: window.location.href,
+    }
+  },
+  mounted () {
+    this.user = util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u')
+  },
   methods: {
+    // 分享微信好友
+    goweixin (val) {
+      // flg 1朋友圈 0 好友
+      let ua = navigator.userAgent.toLowerCase();
+      let ios = ua.indexOf("native_app_ios") > -1
+      let android = ua.indexOf("glaer-android") > -1
+      let iosWk = ua.indexOf("native_app_ios_wk") > -1
+      if (this.iosWk) {
+        window.webkit.messageHandlers.goShareNativePage.postMessage(this.isHref,this.data.Title, val, 'https://img.xlxt.net/' + this.data.PreviewUrl, this.data.Intro) 
+      } else if (ios) {
+        window.goShareNativePage(this.isHref,this.data.Title, val, 'https://img.xlxt.net/' + this.data.PreviewUrl, this.data.Intro) 
+      } else if (android) {
+        window.android.goShareNativePage(this.isHref,this.data.Title,val, 'https://img.xlxt.net/' + this.data.PreviewUrl, this.data.Intro)
+      }
+      this.close()
+    },
     copy (e) {
       Toast('链接复制成功,快去粘贴吧')
+      this.close()
     },
     onError (e) {
       Toast('复制失败')
+      this.close()
     },
     close () {
       this.$emit('closeShare')

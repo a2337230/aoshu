@@ -2,7 +2,7 @@
   <div class="arcitle">
     <!-- 头部 -->
     <header-box></header-box>
-    <scroll class="scroll-arcitle arcitle-content" :data="arcitleInfo"  v-if="arcitleInfo">
+    <scroll class="scroll-arcitle arcitle-content" :data="arcitleInfo || review" v-if="arcitleInfo">
       <div v-if="!arcitleInfo">
       </div>
       <div class="arcitle-container" @click="isInputBlur">
@@ -67,7 +67,7 @@
         <img src="./../common/zf.png" v-else>
       </div>
     </div>
-    <share @closeShare="closeShare" v-if="isShare"></share>
+    <share @closeShare="closeShare" v-if="isShare" :data="arcitleInfo"></share>
   </div>
 </template>
 <script>
@@ -167,22 +167,22 @@ export default {
     },
     // 发表评论前验证登录
     isLoginFocus () {
-      if (!this.user) {
-        this.reviewContent = ''
-        this.bulr()
-        MessageBox({
-          title: '提示',
-          message: '登录后可以评论',
-          showConfirmButton: true,
-          showCancelButton: true,
-          confirmButtonText: '登录'
-        }).then(action => {
-          if (action === 'confirm') {
-            window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + this.isHref
-          }
-        }) 
-        return 
-      }
+      // if (!this.user) {
+      //   this.reviewContent = ''
+      //   this.bulr()
+      //   MessageBox({
+      //     title: '提示',
+      //     message: '登录后可以评论',
+      //     showConfirmButton: true,
+      //     showCancelButton: true,
+      //     confirmButtonText: '登录'
+      //   }).then(action => {
+      //     if (action === 'confirm') {
+      //       window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + this.isHref
+      //     }
+      //   }) 
+      //   return 
+      // }
       var u = navigator.userAgent, app = navigator.appVersion
       let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
       // alert(isiOS)

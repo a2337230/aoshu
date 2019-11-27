@@ -17,7 +17,7 @@
           </li>
         </ul>
         <!-- 直播图片入口 -->
-        <div class="go-live">
+        <div class="go-live" @click="goRing">
           <img :src="ring">
         </div>
         <h2 class="home-title">资讯专区</h2>
@@ -26,12 +26,16 @@
         </div>
       </div>
     </scroll>
+    <verify-box></verify-box>
   </div>
 </template>
 <script>
 import HeaderBox from '@/components/HeaderBox'
 import Swiper from '@/components/Swiper'
-import { GetArticleShow } from '@/api/index'
+import { GetArticleShow, GetLive, GetMemberInfo } from '@/api/index'
+import { MessageBox } from 'mint-ui'
+// 企业认证
+import VerifyBox from '@/components/VerifyBox'
 export default {
   name: 'home',
   data() {
@@ -72,15 +76,71 @@ export default {
         }
       ],
       // 跳转擂台图片
-      ring: require('./../common/ad1.png'),
+      ring: '',
+      ringID: '',
       // 文章
-      arcitle: []
+      arcitle: [],
+      isLogin: ''
     }
   },
   created () {
+    this._GetMemberInfo()
+    this.getRing()
     this.getArcitle()
   },
   methods: {
+    // 判断是否登录
+    async _GetMemberInfo () {
+      let result = await GetMemberInfo()
+      console.log(result)
+      if (result.Code === 401) {
+        this.isLogin = false
+      } else {
+        this.isLogin = result.Data
+      }
+    },
+    // 获取擂台
+    async getRing () {
+      let result = await GetLive({
+        positionCode: 'AI_SHU_RING'
+      })
+      if (result.Code === 200) {
+        this.ring = 'https://img.xlxt.net' + result.Data[0].ImgUrl
+        this.ringID = result.Data[0].Sort
+      }
+    },
+    // 跳转知识擂台
+    goRing () {
+      // 如果没有登录
+      if (!this.isLogin) {
+        MessageBox({
+          title: '提示',
+          message: '登录后可以进入擂台',
+          showConfirmButton: true,
+          showCancelButton: true,
+          confirmButtonText: '登录'
+        }).then(action => {
+          if (action === 'confirm') {
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+          }
+        }) 
+        return 
+      }
+      let ua = navigator.userAgent.toLowerCase();
+      // let ios = ua.indexOf("native_app_ios") > -1
+      let android = ua.indexOf("glaer-android") > -1
+      // let iosWk = ua.indexOf("native_app_ios_wk") > -1
+      // if (this.iosWk) {
+      //   window.webkit.messageHandlers.goPlacementMatchesPage.postMessage(String(this.ringID))
+      // } else if (ios) {
+      //   window.goPlacementMatchesPage(String(this.ringID)) 
+      // } else 
+      if (android) {
+        window.android.goPlacementMatchesPage(this.ringID)
+      } else {
+        window.location.href = "https://m2.xlxt.net/examIndex.html#/arena/15006/base=aishu"
+      } 
+    },
     // 点击四大专区卡片跳转
     goCard (val) {
       if (val.path) {
@@ -99,6 +159,7 @@ export default {
   components: {
     HeaderBox,
     Swiper,
+    VerifyBox,
     ArcitleMenu: () => import('@/components/ArcitleMenu'),
     Scroll: () => import('@/components/Scroll')
   }
@@ -116,7 +177,6 @@ export default {
   .banner {
     width: 6.9rem;
     height: 2.6rem;
-    background-color: red;
     border-radius: .2rem;
     overflow: hidden;
     margin-bottom: .45rem;

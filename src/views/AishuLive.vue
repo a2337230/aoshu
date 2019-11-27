@@ -6,7 +6,7 @@
       <li @click="goLive(item)" v-for="item in liveMenu" :key="item.ADID">
         <img :src="'https://img.xlxt.net' + item.ImgUrl">
         <div class="live-status">
-          <p :class="item.Sort | classFormat">{{item.Sort| statusFormat}}</p>
+          <p :class="item | classFormat">{{item.Sort| statusFormat}}</p>
         </div>
         <div class="title-box">
           <h3>{{item.Name}}</h3>
@@ -19,42 +19,96 @@
 <script>
 import HeaderBox from '@/components/HeaderBox'
 import moment from 'moment'
-import { Toast } from 'mint-ui';
-import { GetLive } from '@/api/index'
+import { Toast, MessageBox } from 'mint-ui';
+import { GetLive, GetMemberInfo } from '@/api/index'
 export default {
   name: 'aishulive',
   data () {
     return {
-      liveMenu: []
+      liveMenu: [],
+      isLogin: ''
     }
   },
   created () {
     this.getLive()
+    this._GetMemberInfo()
   },
   methods: {
+    // 判断是否登录
+    async _GetMemberInfo () {
+      let result = await GetMemberInfo()
+      console.log(result)
+      if (result.Code === 401) {
+        this.isLogin = false
+      } else {
+        this.isLogin = result.Data
+      }
+    },
     goLive (val) {
       // 0 敬请期待 1 正在直播 2 观看录播
+      if (!val.Sort || val.Sort == 4) {
+        Toast('直播尚未开始')
+        return
+      } 
+      // 如果没有登录
+      if (!this.isLogin) {
+        MessageBox({
+          title: '提示',
+          message: '登录后可以观看',
+          showConfirmButton: true,
+          showCancelButton: true,
+          confirmButtonText: '登录'
+        }).then(action => {
+          if (action === 'confirm') {
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+          }
+        }) 
+        return 
+      }
       let id = Number(val.ADUrl.split(',')[2].split(':')[1])
       let CoursewareID = Number(val.ADUrl.split(',')[3].split(':')[1])
-      if (!val.Sort) {
-        Toast('直播尚未开始')
-      } else if (val.Sort == 1) {
-        this.$router.push({
-          name: '直播页',
-          query: {
-            id: id,
-            CoursewareID: CoursewareID
-          }
-        })
-      } else if (val.Sort == 2) {
-        this.$router.push({
-          name: '课程播放页',
-          query: {
-            id: id,
-            CoursewareID: CoursewareID
-          }
-        })
-      }
+      let ua = navigator.userAgent.toLowerCase();
+      let ios = ua.indexOf("native_app_ios") > -1
+      let android = ua.indexOf("glaer-android") > -1
+      let iosWk = ua.indexOf("native_app_ios_wk") > -1
+      if (this.iosWk) {
+        if (val.Sort == 1) {
+          window.webkit.messageHandlers.goLiveViewPage.postMessage(String(id), String(CoursewareID))
+        } else if (val.Sort == 2) {
+          window.webkit.messageHandlers.goCourseDetailsPage.postMessage(String(id))
+        }
+      } else if (ios) {
+        if (val.Sort == 1) {
+          window.goLiveViewPage(String(id), String(CoursewareID)) 
+        } else if (val.Sort == 2) {
+          window.goCourseDetailsPage(String(id)) 
+        }
+      } else if (android) {
+        if (val.Sort == 1) {
+          window.android.goLiveViewPage(String(id), String(CoursewareID))
+        } else if (val.Sort == 2) {
+          window.android.goCourseDetailsPage(String(id))
+        }
+      } else {
+        if (val.Sort == 1) {
+          this.$router.push({
+            name: '直播页',
+            query: {
+              id: id,
+              CoursewareID: CoursewareID
+            }
+          })
+        } else if (val.Sort == 2) {
+          this.$router.push({
+            name: '课程播放页',
+            query: {
+              id: id,
+              CoursewareID: CoursewareID
+            }
+          })
+        }
+      } 
+      
     },
     // 获取直播列表
     async getLive () {
@@ -95,15 +149,21 @@ export default {
     },
     classFormat (val) {
       let color = ''
-      if (!val) {
+      if (!val.Sort) {
         color = 'yellow'
-      } else if (val == 1) {
-        color = 'red'
+      } else if (val.Sort == 1) {
+        let start = Number(val.ADUrl.split(',')[0].split(':')[1])
+        let time = new Date().getTime()
+        if (time < start) {
+          color = 'noColor'
+          val.Sort = 4
+        } else {
+          color = 'red'
+        }
       } else {
         color = 'green'
       }
       return color
-      console.log(val)
     }
   },
   components: {
@@ -177,5 +237,8 @@ export default {
 }
 .green {
   background-color: #01442C;
+}
+.noColor {
+  display: none;
 }
 </style>

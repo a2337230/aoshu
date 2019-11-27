@@ -82,9 +82,9 @@
 import HeaderBox from '@/components/HeaderBox'
 import Tabs from '@/components/Tabs'
 import VideoBox from '@/components/Video'
-import { GetCourseByIDShow, GetChapterCoursewareShow, GetReview, AddCourseReview, GetCoursewareByIDShow } from '@/api/index'
+import { GetCourseByIDShow, GetChapterCoursewareShow, GetReview, AddCourseReview, GetCoursewareByIDShow, GetMemberInfo } from '@/api/index'
 import moment from 'moment'
-import { Toast } from 'mint-ui'
+import { Toast, MessageBox } from 'mint-ui'
 export default {
   name: 'live-video',
   data() {
@@ -100,14 +100,13 @@ export default {
       pagesize: 15,
       pageindex: 1,
       pullup: true,
-      VideoId: ''
+      VideoId: '',
+      isLogin: ''
     }
   },
   created () {
     this.id = this.$route.query.id
-    this._GetCourseByIDShow()
-    this._GetChapterCoursewareShow()
-    this._GetReview()
+    this._GetMemberInfo()
   },
   watch: {
     Star (val) {
@@ -115,6 +114,29 @@ export default {
     }
   },
   methods: {
+    // 判断是否登录
+    async _GetMemberInfo () {
+      let result = await GetMemberInfo()
+      console.log(result)
+      if (result.Code === 401) {
+        MessageBox({
+          title: '提示',
+          message: '登录后可以观看',
+          showConfirmButton: true,
+          showCancelButton: true,
+          confirmButtonText: '登录'
+        }).then(action => {
+          if (action === 'confirm') {
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+          }
+        }) 
+      } else {
+        this._GetCourseByIDShow()
+        this._GetChapterCoursewareShow()
+        this._GetReview()
+        this.isLogin = result.Data
+      }
+    },
     cuttentTabs (val) {
       console.log(val)
       this.type = val
