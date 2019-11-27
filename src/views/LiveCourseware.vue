@@ -43,11 +43,14 @@
         </div>
       </div>
     </div>
+    <verify-box v-if="isVerify" @closeDialog="closeDialog" @isOK="isOK"></verify-box>
   </div>
 </template>
 <script>
 import HeaderBox from '@/components/HeaderBox'
-import { GetCoursewareByID, GetCourseByIDShow, GetCourseMessage, SendCourseMessage } from '@/api/index'
+// 企业认证
+import VerifyBox from '@/components/VerifyBox'
+import { GetCoursewareByID, GetCourseByIDShow, GetCourseMessage, SendCourseMessage, GetMemberInfo,CheckAppUserJoinEnterprise } from '@/api/index'
 import $ from 'jquery'
 import moment from 'moment'
 import { Toast } from 'mint-ui'
@@ -71,16 +74,59 @@ export default {
       reivewContent: '',
       // 评论列表
       reivewList: [],
+      isLogin: '',
       timer: '',
-      startTime: ''
+      startTime: '',
+      isVerify: false
     }
   },
   created () {
     this.coursewareID = this.$route.query.CoursewareID
-    this._GetCourseByIDShow()
-    this._GetCoursewareByID()
+    this._GetMemberInfo()
+    // this._GetCourseByIDShow()
+    // this._GetCoursewareByID()
   },
   methods: {
+    // 验证通过
+    isOK () {
+      this._GetCourseByIDShow()
+      this._GetCoursewareByID()
+    },
+    // 验证
+    async _CheckAppUserJoinEnterprise () {
+      // 查询是否绑定企业
+      let result = await CheckAppUserJoinEnterprise({type: 0})
+      if (result.Code == 200) {
+        if (!result.Data) {
+          // 是个人没有绑定过企业
+          this.isVerify = true
+          return
+        } 
+      }
+      this._GetCourseByIDShow()
+      this._GetCoursewareByID()
+    },
+    // 判断是否登录
+    async _GetMemberInfo () {
+      let result = await GetMemberInfo()
+      console.log(result)
+      if (result.Code === 401) {
+        MessageBox({
+          title: '提示',
+          message: '登录后可以观看',
+          showConfirmButton: true,
+          showCancelButton: true,
+          confirmButtonText: '登录'
+        }).then(action => {
+          if (action === 'confirm') {
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+          }
+        }) 
+      } else {
+        this.isLogin = result.Data
+        this._CheckAppUserJoinEnterprise ()
+      }
+    },
     // 失去焦点
     isBlur () {
       var u = navigator.userAgent, app = navigator.appVersion
@@ -222,6 +268,9 @@ export default {
         $('.prism-live-display')[0].innerText = '直播已结束'
           console.log('直播结束');
       });
+    },
+    closeDialog () {
+      this.isVerify = false
     }
   },
   destroyed () {
@@ -237,6 +286,7 @@ export default {
   },
   components: {
     HeaderBox,
+    VerifyBox,
     Scroll: () => import('@/components/Scroll')
   }
 }

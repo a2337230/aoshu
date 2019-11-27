@@ -76,15 +76,19 @@
         </div>
       </scroll>
     </div>
+    <verify-box v-if="isVerify" @closeDialog="closeDialog" @isOK="isOK"></verify-box>
   </div>
 </template>
 <script>
 import HeaderBox from '@/components/HeaderBox'
 import Tabs from '@/components/Tabs'
 import VideoBox from '@/components/Video'
-import { GetCourseByIDShow, GetChapterCoursewareShow, GetReview, AddCourseReview, GetCoursewareByIDShow, GetMemberInfo } from '@/api/index'
+// 企业认证
+import VerifyBox from '@/components/VerifyBox'
+import { GetCourseByIDShow, GetChapterCoursewareShow, GetReview, AddCourseReview, GetCoursewareByIDShow, GetMemberInfo, CheckAppUserJoinEnterprise } from '@/api/index'
 import moment from 'moment'
 import { Toast, MessageBox } from 'mint-ui'
+import util from '@/util/util.js'
 export default {
   name: 'live-video',
   data() {
@@ -101,12 +105,14 @@ export default {
       pageindex: 1,
       pullup: true,
       VideoId: '',
-      isLogin: ''
+      isLogin: '',
+      isVerify: false
     }
   },
   created () {
     this.id = this.$route.query.id
     this._GetMemberInfo()
+
   },
   watch: {
     Star (val) {
@@ -114,6 +120,26 @@ export default {
     }
   },
   methods: {
+    isOK () {
+      this._GetCourseByIDShow()
+      this._GetChapterCoursewareShow()
+      this._GetReview()
+    },
+    // 验证
+    async _CheckAppUserJoinEnterprise () {
+      // 查询是否绑定企业
+      let result = await CheckAppUserJoinEnterprise({type: 0})
+      if (result.Code == 200) {
+        if (!result.Data) {
+          // 是个人没有绑定过企业
+          this.isVerify = true
+          return
+        } 
+      }
+      this._GetCourseByIDShow()
+      this._GetChapterCoursewareShow()
+      this._GetReview()
+    },
     // 判断是否登录
     async _GetMemberInfo () {
       let result = await GetMemberInfo()
@@ -131,14 +157,11 @@ export default {
           }
         }) 
       } else {
-        this._GetCourseByIDShow()
-        this._GetChapterCoursewareShow()
-        this._GetReview()
         this.isLogin = result.Data
+        this._CheckAppUserJoinEnterprise ()
       }
     },
     cuttentTabs (val) {
-      console.log(val)
       this.type = val
     },
     // 获取直播视频
@@ -205,9 +228,9 @@ export default {
           message: '评价成功',
           iconClass: 'iconfont icon-xiaolianchenggong'
         })
+        this.textarea = ''
         this._GetReview()
       }
-      console.log(result)
     },
     // 评论滚动
     scrollToEnd () {
@@ -216,6 +239,9 @@ export default {
       }
       this.pagesize+=15
       this._GetReview()
+    },
+    closeDialog () {
+      this.isVerify = false
     }
   },
   filters: {
@@ -232,6 +258,7 @@ export default {
     HeaderBox,
     Tabs,
     VideoBox,
+    VerifyBox,
     Scroll: () => import('@/components/Scroll')
   }
 }

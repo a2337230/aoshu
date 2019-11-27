@@ -68,11 +68,14 @@
       </div>
     </div>
     <share @closeShare="closeShare" v-if="isShare" :data="arcitleInfo"></share>
+    <verify-box v-if="isVerify" @closeDialog="closeDialog"></verify-box>
   </div>
 </template>
 <script>
 import HeaderBox from '@/components/HeaderBox'
-import {ArticleInfo1,ArticleInfo2,GetReviewFront,AddReview,AddReviewLike} from '@/api/index'
+// 企业认证
+import VerifyBox from '@/components/VerifyBox'
+import {ArticleInfo1,ArticleInfo2,GetReviewFront,AddReview,AddReviewLike,CheckAppUserJoinEnterprise} from '@/api/index'
 import { Toast, MessageBox } from 'mint-ui'
 import moment from 'moment'
 import util from '@/util/util.js'
@@ -97,7 +100,9 @@ export default {
       // 点赞图标
       yesLike: require('./../common/yeszan.png'),
       noLike: require('./../common/nozan.png'),
-      isShare: false
+      isShare: false,
+      // 是否验证
+      isVerify: false
     }
   },
   created () {
@@ -112,7 +117,8 @@ export default {
       this.isH5 = true
     }
     this.id = this.$route.query.id
-    this.user = util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u')
+    // this.user = util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u')
+    this.user = '111'
     if (this.user) {
       this._ArticleInfo1()
       this._GetReviewFront()
@@ -122,6 +128,7 @@ export default {
   },
   mounted () {
     this.isHref = window.location.href
+
   },
   methods: {
     // 兼容ios
@@ -166,23 +173,32 @@ export default {
       }
     },
     // 发表评论前验证登录
-    isLoginFocus () {
-      // if (!this.user) {
-      //   this.reviewContent = ''
-      //   this.bulr()
-      //   MessageBox({
-      //     title: '提示',
-      //     message: '登录后可以评论',
-      //     showConfirmButton: true,
-      //     showCancelButton: true,
-      //     confirmButtonText: '登录'
-      //   }).then(action => {
-      //     if (action === 'confirm') {
-      //       window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + this.isHref
-      //     }
-      //   }) 
-      //   return 
-      // }
+    async isLoginFocus () {
+      if (!this.user) {
+        this.reviewContent = ''
+        this.bulr()
+        MessageBox({
+          title: '提示',
+          message: '登录后可以评论',
+          showConfirmButton: true,
+          showCancelButton: true,
+          confirmButtonText: '登录'
+        }).then(action => {
+          if (action === 'confirm') {
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + this.isHref
+          }
+        }) 
+        return 
+      }
+      // 查询是否绑定企业
+      let result = await CheckAppUserJoinEnterprise({type: 0})
+      if (result.Code == 200) {
+        if (!result.Data) {
+          // 是个人没有绑定过企业
+          this.isVerify = true
+          return
+        } 
+      }
       var u = navigator.userAgent, app = navigator.appVersion
       let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
       // alert(isiOS)
@@ -237,6 +253,9 @@ export default {
     },
     closeShare () {
       this.isShare = false
+    },
+    closeDialog () {
+      this.isVerify = false
     }
   },
   watch: {
@@ -274,6 +293,7 @@ export default {
   },
   components: {
     HeaderBox,
+    VerifyBox,
     Scroll: () => import('@/components/Scroll'),
     Share: () => import('@/components/Share')
   }

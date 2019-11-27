@@ -37,3 +37,5 @@ export const GetCoursewareByIDShow = (params) => ajax(BASE_URL + '/Course/GetCou
 export const GetMemberInfo = (params) => ajax(BASE_URL + '/Member/GetMemberInfo', params)
 // 验证是否绑定企业
 export const CheckAppUserJoinEnterprise = (params) => ajax(BASE_URL + '/Member/CheckAppUserJoinEnterprise', params)
+// 验证企业
+export const AddAppUserJoinEnterprise = (params) => ajax(BASE_URL + '/Member/AddAppUserJoinEnterprise', params)

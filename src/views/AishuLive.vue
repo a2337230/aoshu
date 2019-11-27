@@ -14,19 +14,22 @@
         </div>
       </li>
     </ul>
+    <!-- <verify-box v-if="isVerify" @closeDialog="closeDialog"></verify-box> -->
   </div>
 </template>
 <script>
 import HeaderBox from '@/components/HeaderBox'
+// import VerifyBox from '@/components/VerifyBox'
 import moment from 'moment'
 import { Toast, MessageBox } from 'mint-ui';
-import { GetLive, GetMemberInfo } from '@/api/index'
+import { GetLive, GetMemberInfo, CheckAppUserJoinEnterprise } from '@/api/index'
 export default {
   name: 'aishulive',
   data () {
     return {
       liveMenu: [],
-      isLogin: ''
+      isLogin: '',
+      isVerify: false
     }
   },
   created () {
@@ -44,7 +47,7 @@ export default {
         this.isLogin = result.Data
       }
     },
-    goLive (val) {
+    async goLive (val) {
       // 0 敬请期待 1 正在直播 2 观看录播
       if (!val.Sort || val.Sort == 4) {
         Toast('直播尚未开始')
@@ -65,6 +68,16 @@ export default {
         }) 
         return 
       }
+      // 查询是否绑定企业
+      // let result = await CheckAppUserJoinEnterprise({type: 0})
+      // if (result.Code == 200) {
+      //   if (!result.Data) {
+      //     // 是个人没有绑定过企业
+      //     this.isVerify = true
+      //     return
+      //   } 
+      // }
+      // return
       let id = Number(val.ADUrl.split(',')[2].split(':')[1])
       let CoursewareID = Number(val.ADUrl.split(',')[3].split(':')[1])
       let ua = navigator.userAgent.toLowerCase();
@@ -123,6 +136,9 @@ export default {
     // 判断直播状态
     statusLive (val1, val2) {
       console.log(val)
+    },
+    closeDialog () {
+      this.isVerify = false
     }
   },
   filters: {
@@ -167,7 +183,8 @@ export default {
     }
   },
   components: {
-    HeaderBox
+    HeaderBox,
+    // VerifyBox
   }
 }
 </script>

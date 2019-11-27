@@ -1,6 +1,7 @@
 <template>
   <div class="verify">
     <div class="verify-box">
+      <span class="close" @click="closeDialog">×</span>
       <div class="title">
         企业认证
       </div>
@@ -8,17 +9,18 @@
         <input type="text" v-model="text" placeholder="请输入企业名称" @input="input">
         <div class="menu" v-show="selectShow">
           <ul>
-            <li v-for="item in selectList" :key="item" v-html="item"></li>
+            <li v-for="item in selectList" :key="item" v-html="item" @click="listClick(item)"></li>
           </ul>
         </div>
       </div>
-      <div class="btn-container">
+      <div class="btn-container" @click="submit">
         确定
       </div>
     </div>
   </div>
 </template>
 <script>
+import { AddAppUserJoinEnterprise } from '@/api/index'
 export default {
   name: 'verify',
   data () {
@@ -501,6 +503,10 @@ export default {
     // this.selectList = JSON.parse(JSON.stringify(this.list))
   },
   methods: {
+    // 关闭弹窗
+    closeDialog () {
+      this.$emit('closeDialog')
+    },
     input () {
       this.selectShow = false
       // 禁止输入空格
@@ -532,6 +538,24 @@ export default {
       // if (this.selectList.length > 1) {
       //   this.selectShow = true
       // }
+    },
+    async submit () {
+      let result = await AddAppUserJoinEnterprise({
+        Name: this.text,
+        Type: 0
+      })
+      if (result.Code === 200) {
+        this.$emit('isOK')
+        this.closeDialog()
+      }
+    },
+    listClick (val) {
+      if (!this.text) {
+        return
+      }
+      let reg = /<[^<>]+>/g;
+      this.text = val.replace(reg,"")
+      this.selectShow = false
     }
   }
 }
@@ -559,6 +583,17 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    .close {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: .8rem;
+      height: .8rem;
+      font-size: .5rem;
+      line-height: .8rem;
+      text-align: center;
+    }
     .title {
       margin: .6rem 0 1rem;
       width: 2.3rem;

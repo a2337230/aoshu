@@ -22,11 +22,11 @@
         </div>
         <h2 class="home-title">资讯专区</h2>
         <div class="arcitle-container">
-          <arcitle-menu :arcitle="arcitle"></arcitle-menu>
+          <arcitle-menu :arcitle="arcitle" :isLogin="isLogin"></arcitle-menu>
         </div>
       </div>
     </scroll>
-    <verify-box v-if="isVerify"></verify-box>
+    <verify-box v-if="isVerify" @closeDialog="closeDialog"></verify-box>
   </div>
 </template>
 <script>
@@ -92,20 +92,6 @@ export default {
     // this._CheckAppUserJoinEnterprise()
   },
   methods: {
-    // 查询是否验证
-    async _CheckAppUserJoinEnterprise () {
-      let result = await CheckAppUserJoinEnterprise({type: 0})
-      if (result.Code == 10001) {
-        // 登录的是企业账号不需要绑定
-      } else if (result.Code == 200) {
-        if (!result.Data) {
-          // 是个人没有绑定过企业
-        } else {
-
-        }
-      }
-      console.log(result)
-    },
     // 判断是否登录
     async _GetMemberInfo () {
       let result = await GetMemberInfo()
@@ -161,7 +147,31 @@ export default {
       }
     },
     // 点击四大专区卡片跳转
-    goCard (val) {
+    async goCard (val) {
+      // 如果没有登录
+      if (!this.isLogin) {
+        MessageBox({
+          title: '提示',
+          message: '登录后可以进入直播',
+          showConfirmButton: true,
+          showCancelButton: true,
+          confirmButtonText: '登录'
+        }).then(action => {
+          if (action === 'confirm') {
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+          }
+        }) 
+        return 
+      }
+      // 查询是否绑定企业
+      let result = await CheckAppUserJoinEnterprise({type: 0})
+      if (result.Code == 200) {
+        if (!result.Data) {
+          // 是个人没有绑定过企业
+          this.isVerify = true
+          return
+        } 
+      }
       if (val.path) {
         this.$router.push(val.path)
       }
@@ -172,7 +182,9 @@ export default {
       if (result.Code === 200) {
         this.arcitle = result.Data
       }
-      console.log(result)
+    },
+    closeDialog () {
+      this.isVerify = false
     }
   },
   components: {

@@ -9,27 +9,72 @@
         <p>{{item.Intro}}</p>
       </div>
     </li>
+    <verify-box v-if="isVerify" @closeDialog="closeDialog"></verify-box>
   </ul>
 </template>
 <script>
+// 企业认证
+import VerifyBox from '@/components/VerifyBox'
+import { MessageBox } from 'mint-ui'
+import { CheckAppUserJoinEnterprise } from '@/api/index'
 export default {
   name: 'Arcitle',
   props: {
     arcitle: {
       type: Array,
       default: () => { return [] }
+    },
+    isLogin: {
+      type: [String, Object],
+      default: ''
+    }
+  },
+  data() {
+    return {
+      // 是否验证
+      isVerify: false
     }
   },
   methods: {
-    goArcitle (val) {
+    async goArcitle (val) {
+      // 如果没有登录
+      if (!this.isLogin) {
+        MessageBox({
+          title: '提示',
+          message: '登录后可以进入直播',
+          showConfirmButton: true,
+          showCancelButton: true,
+          confirmButtonText: '登录'
+        }).then(action => {
+          if (action === 'confirm') {
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+          }
+        }) 
+        return 
+      }
+      // 查询是否绑定企业
+      let result = await CheckAppUserJoinEnterprise({type: 0})
+      if (result.Code == 200) {
+        if (!result.Data) {
+          // 是个人没有绑定过企业
+          this.isVerify = true
+          return
+        } 
+      }
       this.$router.push({
         path: '/arcitle',
         query: {
           id: val.ArticleID
         }
       })
+    },
+    closeDialog () {
+      this.isVerify = false
     }
   },
+  components: {
+    VerifyBox
+  }
 }
 </script>
 <style lang="less" scoped>
