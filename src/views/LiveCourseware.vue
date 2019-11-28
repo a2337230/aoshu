@@ -4,7 +4,7 @@
     <div class="video-box">
       <div class="error" v-show="prepare">
         <p>{{errorText}}</p>
-        <span>重试</span>
+        <span @click="videodispose" v-if="errorText !== '直播已结束'">重试</span>
       </div>
       <div class="prism-player" id="J_prismPlayer" v-show="isAlready"></div>
       <!-- <img src="./../common/LiveError.png" alt="" > -->
@@ -203,21 +203,42 @@ export default {
         type: 0
       })
       if (result.Code === 200) {
+        if (!result.Data.LiveUrl) {
+          this.errorText = '主播正在准备中...'
+          this.prepare = true
+          this.isAlready = false
+        }
         this.LiveUrl = result.Data.LiveUrl
         this.startTime = Number(result.Data.cw.StartDate.substring(6, result.Data.cw.StartDate.length - 2))
         let time = new Date().getTime()
         let start = Number(result.Data.cw.StartDate.substring(6, result.Data.cw.StartDate.length - 2))
         if (start > time) {
-          console.log('直播未开始')
+          // console.log('直播未开始')
           this.prepare = true
           this.isAlready = false
         } else {
           this.errorText = '主播正在准备中...'
-          console.log('直播开始')
+          // console.log('直播开始')
           this.prepare = false
           this.isAlready = true
           this.initVideo()
         }
+      } else if (result.Code === 11126) {
+        // this.prepare = false
+        // this.isAlready = true
+        // this.initVideo()
+        let start1 = Number(result.Data.sDate.substring(6, result.Data.sDate.length - 2))
+        let time1 = new Date().getTime()
+        if (start1 > time1) {
+          console.log('直播未开始')
+          this.prepare = true
+          this.isAlready = false
+        } else {
+          this.errorText = '直播已结束'
+          this.prepare = true
+          this.isAlready = false
+        }
+        
       }
     },
     // 初始化播放器
@@ -227,14 +248,13 @@ export default {
         width: '100%',
         height: '100%',
         autoplay: false,
-        isLive:true,//是不是直播
+        isLive: true,//是不是直播
         source: this.LiveUrl,
         useH5Prism: true,
         liveRetry: 9999,
-        liveStartTime: moment(this.startTime).format('YYYY/MM/DD HH:mm:ss')
+        // liveStartTime: moment(this.startTime).format('YYYY/MM/DD HH:mm:ss')
       }, function (player) {
         //播放器创建好了
-        console.log(moment(this.startTime).format('YYYY/MM/DD HH:mm:ss'))
         $('.prism-setting-btn').hide()
         $('.prism-cc-btn').hide()
       });
@@ -250,10 +270,12 @@ export default {
           this.isAlready = true
       });
       this.player.on("error", function () {
+        this.errorText = '主播正在准备中'
           console.log('直播失败');
       });
       this.player.on("liveStreamStop", () => {   //直播流中断
         $('.prism-live-display')[0].innerText = '主播正在准备中...'
+        this.errorText = '主播正在准备中'
         console.log('直播中断');
         this.isAlready = false
         this.prepare = true
@@ -261,16 +283,23 @@ export default {
       this.player.on("onM3u8Retry", () => {   //直播流中断
         $('.prism-live-display')[0].innerText = '主播正在准备中...'
         // console.log('直播中断恢复');
+        this.errorText = '主播正在准备中'
         this.isAlready = false
         this.prepare = true
       });
       this.player.on("ended", function () {
+        this.errorText = '直播已结束'
+        this.isAlready = false
+        this.prepare = true
         $('.prism-live-display')[0].innerText = '直播已结束'
           console.log('直播结束');
       });
     },
     closeDialog () {
       this.isVerify = false
+    },
+    videodispose () {
+      location.reload()
     }
   },
   destroyed () {
@@ -400,10 +429,10 @@ export default {
         height: calc(~"100% - .8rem");
         overflow: hidden;
       }
-      .reivew-menu {
-        // height: calc(~"100% - .8rem");
-        // overflow: hidden;
-      }
+      // .reivew-menu {
+      //   // height: calc(~"100% - .8rem");
+      //   // overflow: hidden;
+      // }
       .reivew-item {
         padding: .3rem 0;
         border-bottom: 1px solid #979797;
@@ -443,6 +472,7 @@ export default {
           color: #363636;
           font-size: .28rem;
           line-height: .4rem;
+          word-wrap:break-word;
         }
       }
       .input-btn {

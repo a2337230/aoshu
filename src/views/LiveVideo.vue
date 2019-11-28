@@ -55,6 +55,7 @@
         <div class="review-container">
           <p class="star">评价该课程： <el-rate v-model="Star" :void-icon-class="'iconfont icon-yduixingxingkongxin'" :icon-classes="['iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin','iconfont icon-yduixingxingshixin']"></el-rate></p>
           <el-input
+            :maxlength="100"
             type="textarea"
             :rows="4"
             placeholder="我来说两句..."
@@ -151,7 +152,6 @@ export default {
     // 判断是否登录
     async _GetMemberInfo () {
       let result = await GetMemberInfo()
-      console.log(result)
       if (result.Code === 401) {
         MessageBox({
           title: '提示',
@@ -203,7 +203,6 @@ export default {
       if (result.Code === 200) {
         this.VideoId = result.Data.cw.BaofengFileName
       }
-      console.log(result)
     },
     // 获取直播详情
     async _GetCourseByIDShow () {
@@ -225,7 +224,6 @@ export default {
         this.CoursewareID = result.Data.List[0].courseware[0].CoursewareID
         this._GetCoursewareByIDShow()
       }
-      console.log(this.CoursewareID)
     },
     // 获取课程评论
     async _GetReview () {
@@ -254,7 +252,7 @@ export default {
       })
       if (result.Code === 200) {
         Toast({
-          message: '评价成功',
+          message: '评论成功',
           iconClass: 'iconfont icon-xiaolianchenggong'
         })
         this.textarea = ''
@@ -472,6 +470,7 @@ export default {
           font-size: .28rem;
           line-height: .4rem;
           color: #363636;
+          word-wrap:break-word;
         }
       }
     }

@@ -9,8 +9,8 @@ export default function ajax(url = '', params = {}, type = 'GET', isUrl = false)
 	return new Promise((resolve, reject) => {
 		// 设置headers
 		var headers = {
-			'k': '9e62e099ab3e17322644db1f5b5c68f0',
-			'u': 'a5ca6923e278812f9741b3d73757b19b',
+			'k': 'ae33f8f114f45938b86fa5b920fecda4',
+			'u': 'fa7608620b016707ecb3232c43e1565a',
 			// 'Authorization': 'APPCODE 27c2bdd6227a4962b0779b6f6e1c881c',
 			// 'X-Ca-Stage': 'test',
 			// 'u': util.getCookie('u'),

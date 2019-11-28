@@ -54,7 +54,7 @@
     </scroll>
     <!-- 底部评论 -->
     <div class="footer-reivew">
-      <input type="url" class="isInput" placeholder="发表您的评论..." v-model="reviewContent" @keyup.enter="submitReview" @focus="isLoginFocus" @blur="iosBlur">
+      <input type="url" class="isInput" placeholder="发表您的评论..." maxlength='500' v-model="reviewContent" @keyup.enter="submitReview" @focus="isLoginFocus" @blur="iosBlur">
       <div class="zhuan" @click="transmit" v-show="!upspring">
         <div class="share-icon"
             v-clipboard:copy="isHref" 
@@ -249,7 +249,15 @@ export default {
     },
     // 评论点赞
     async isLike (val) {
-      console.log(val)
+      // 判断绑定企业
+      let result1 = await CheckAppUserJoinEnterprise({type: 0})
+      if (result1.Code == 200) {
+        if (!result1.Data) {
+          // 是个人没有绑定过企业
+          this.isVerify = true
+          return
+        } 
+      }
       let like = val.IsLike ? 0: 1
       let result = await AddReviewLike({
         like: like,

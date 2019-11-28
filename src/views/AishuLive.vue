@@ -49,7 +49,7 @@ export default {
     },
     async goLive (val) {
       // 0 敬请期待 1 正在直播 2 观看录播
-      if (!val.Sort || val.Sort == 4) {
+      if (!val.Sort) {
         Toast('直播尚未开始')
         return
       } 
@@ -85,7 +85,7 @@ export default {
       let android = ua.indexOf("glaer-android") > -1
       let iosWk = ua.indexOf("native_app_ios_wk") > -1
       if (this.iosWk) {
-        if (val.Sort == 1) {
+        if (val.Sort == 1 || val.Sort == 4) {
           window.webkit.messageHandlers.goLiveViewPage.postMessage(String(id), String(CoursewareID))
         } else if (val.Sort == 2) {
           window.webkit.messageHandlers.goCourseDetailsPage.postMessage(String(id))
@@ -103,7 +103,7 @@ export default {
           window.android.goCourseDetailsPage(String(id))
         }
       } else {
-        if (val.Sort == 1) {
+        if (val.Sort == 1 || val.Sort == 4) {
           this.$router.push({
             name: '直播页',
             query: {
@@ -262,9 +262,14 @@ export default {
       flex-direction: column;
       justify-content: flex-end;
       padding: 0 .23rem;
+      box-sizing: border-box;
       h3 {
+        width: 100%;
         font-size: .3rem;
         line-height: .42rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       p {
         font-size: .24rem;
@@ -288,6 +293,7 @@ export default {
   display: none;
 }
 .start {
+  display: none;
   background-color: #1e90ff;
 }
 </style>
