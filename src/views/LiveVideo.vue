@@ -40,9 +40,9 @@
                 <li v-for="(citem, cindex) in item.courseware" :key="cindex" class="chapter-item">
                   <div class="chapter-item-title">
                     <img src="./../common/play.png" alt="">
-                    <div class="chapter-name">
+                    <!-- <div class="chapter-name"> -->
                       <p>{{citem.Name}}</p>
-                    </div>
+                    <!-- </div> -->
                   </div>
                   <!-- <time>{{citem.TimeLength | timeFormat}}</time> -->
                 </li>
@@ -93,7 +93,7 @@ import Tabs from '@/components/Tabs'
 import VideoBox from '@/components/Video'
 // 企业认证
 import VerifyBox from '@/components/VerifyBox'
-import { GetCourseByIDShow, GetChapterCoursewareShow, GetReview, AddCourseReview, GetCoursewareByIDShow, GetMemberInfo, CheckAppUserJoinEnterprise } from '@/api/index'
+import { GetCourseByIDShow, GetChapterCoursewareShow, GetReview, AddCourseReview, GetCoursewareByIDShow, GetMemberInfo, CheckAppUserJoinEnterprise, UpdateCourseBrowseNum } from '@/api/index'
 import moment from 'moment'
 import { Toast, MessageBox } from 'mint-ui'
 import util from '@/util/util.js'
@@ -123,16 +123,18 @@ export default {
     this._GetMemberInfo()
 
   },
-  watch: {
-    Star (val) {
-      console.log(val)
-    }
-  },
   methods: {
     isOK () {
+      this._UpdateCourseBrowseNum()
       this._GetCourseByIDShow()
       this._GetChapterCoursewareShow()
       this._GetReview()
+    },
+    // 增加浏览量
+    async _UpdateCourseBrowseNum () {
+      let result = await UpdateCourseBrowseNum({
+        CourseID: this.$route.query.id
+      })
     },
     // 验证
     async _CheckAppUserJoinEnterprise () {
@@ -171,27 +173,27 @@ export default {
     },
     cuttentTabs (val) {
       this.type = val
-      clearInterval(this.timer)
-      if (val == 1) {
-        // 超过宽度自动滚动
-        this.$nextTick(() => {
-          let dom = document.querySelector('.chapter-name')
-          let child = dom.querySelector('p')
-          child.innerText = child.innerText + '\xa0\xa0\xa0\xa0\xa0\xa0'
-          if (dom.clientWidth < child.clientWidth) {
-            this.timer = setInterval(() => {
-              let title = child.innerText.split('')
-              let one = title.shift()
-              if (one === '\xa0') {
-                title.push(one)
-                one = title.shift()
-              }
-              title.push(one)
-              child.innerText = title.join('')
-            }, 300)
-          }
-        })
-      }
+      // clearInterval(this.timer)
+      // if (val == 1) {
+      //   // 超过宽度自动滚动
+      //   this.$nextTick(() => {
+      //     let dom = document.querySelector('.chapter-name')
+      //     let child = dom.querySelector('p')
+      //     child.innerText = child.innerText + '\xa0\xa0\xa0\xa0\xa0\xa0'
+      //     if (dom.clientWidth < child.clientWidth) {
+      //       this.timer = setInterval(() => {
+      //         let title = child.innerText.split('')
+      //         let one = title.shift()
+      //         if (one === '\xa0') {
+      //           title.push(one)
+      //           one = title.shift()
+      //         }
+      //         title.push(one)
+      //         child.innerText = title.join('')
+      //       }, 300)
+      //     }
+      //   })
+      // }
     },
     // 获取直播视频
     async _GetCoursewareByIDShow () {
@@ -202,6 +204,7 @@ export default {
       })
       if (result.Code === 200) {
         this.VideoId = result.Data.cw.BaofengFileName
+        this._UpdateCourseBrowseNum()
       }
     },
     // 获取直播详情
@@ -363,6 +366,7 @@ export default {
         .chapter-item {
           display: flex;
           justify-content: space-between;
+          padding: .2rem 0;
           .chapter-item-title {
             display: flex;
             height: .3rem;
@@ -372,23 +376,29 @@ export default {
               height: .3rem;
               margin-right: .3rem;
             }
-            .chapter-name {
-              width: 5rem;
-              height: .4rem;
-              overflow: hidden;
-              position: relative;
-              p {
-                position: absolute;
-                top: 0;
-                left: 0;
-              // line-height: .3rem;
-                margin-bottom: 0;
-                color: #006B45;
-                white-space: nowrap;
-              }
+            p {
+              margin-bottom: 0;
+              color: #006B45;
+              display:-webkit-box;
+              -webkit-box-orient:vertical;
+              -webkit-line-clamp:2;
+              overflow:hidden;
             }
-            
-            
+            // .chapter-name {
+            //   width: 5rem;
+            //   height: .4rem;
+            //   overflow: hidden;
+            //   position: relative;
+            //   p {
+            //     position: absolute;
+            //     top: 0;
+            //     left: 0;
+            //     line-height: .3rem;
+            //     margin-bottom: 0;
+            //     color: #006B45;
+            //     white-space: nowrap;
+            //   }
+            // }
           }
           time {
             position: relative;

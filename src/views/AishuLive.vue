@@ -40,7 +40,6 @@ export default {
     // 判断是否登录
     async _GetMemberInfo () {
       let result = await GetMemberInfo()
-      console.log(result)
       if (result.Code === 401) {
         this.isLogin = false
       } else {
@@ -50,7 +49,7 @@ export default {
     async goLive (val) {
       // 0 敬请期待 1 正在直播 2 观看录播
       if (!val.Sort) {
-        Toast('直播尚未开始')
+        Toast('敬请期待')
         return
       } 
       // 如果没有登录
@@ -68,16 +67,6 @@ export default {
         }) 
         return 
       }
-      // 查询是否绑定企业
-      // let result = await CheckAppUserJoinEnterprise({type: 0})
-      // if (result.Code == 200) {
-      //   if (!result.Data) {
-      //     // 是个人没有绑定过企业
-      //     this.isVerify = true
-      //     return
-      //   } 
-      // }
-      // return
       let id = Number(val.ADUrl.split(',')[2].split(':')[1])
       let CoursewareID = Number(val.ADUrl.split(',')[3].split(':')[1])
       let ua = navigator.userAgent.toLowerCase();
@@ -128,7 +117,6 @@ export default {
       let result = await GetLive({
         positionCode: 'AI_SHU_LIVE'
       })
-      console.log(result.Data[0].ADUrl.split(',')[0].split(':')[1])
       let data = []
       let formatData = []
       data = result.Data.sort((n1,n2) => {
@@ -152,15 +140,7 @@ export default {
       // 敬请期待
       let sort0 = data.filter(item => item.Sort == 0)
       formatData = formatData.concat(sort1).concat(sort4).concat(sort2).concat(sort0)
-      // formatData.push(data.filter(item => item.Sort == 1))
-      // formatData.push(data.filter(item => item.Sort == 2))
-      // formatData.push(data.filter(item => item.Sort == 0))
       this.liveMenu = formatData
-      console.log(formatData)
-    },
-    // 判断直播状态
-    statusLive (val1, val2) {
-      console.log(val)
     },
     closeDialog () {
       this.isVerify = false
@@ -220,6 +200,10 @@ export default {
 <style lang="less" scoped>
 .aishu-list {
   padding: .3rem;
+  box-sizing: border-box;
+  height: calc(~"100vh - .88rem");
+  overflow-y: scroll;
+  &::-webkit-scrollbar {display:none}
   li {
     width: 6.9rem;
     height: 3.87rem;

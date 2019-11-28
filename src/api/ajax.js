@@ -13,8 +13,8 @@ export default function ajax(url = '', params = {}, type = 'GET', isUrl = false)
 			'u': 'fa7608620b016707ecb3232c43e1565a',
 			// 'Authorization': 'APPCODE 27c2bdd6227a4962b0779b6f6e1c881c',
 			// 'X-Ca-Stage': 'test',
-			// 'u': util.getCookie('u'),
-			// 'k': util.getCookie('k'),
+			// 'u':util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u'),
+			// 'k':util.getCookie('token') ? util.getCookie('token'): util.getCookie('k'), 
 		}
 		if (type === 'GET') {
 			let paramsStr = ''

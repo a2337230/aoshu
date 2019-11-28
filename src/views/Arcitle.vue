@@ -2,7 +2,7 @@
   <div class="arcitle">
     <!-- 头部 -->
     <header-box></header-box>
-    <scroll class="scroll-arcitle arcitle-content" :data="arcitleInfo || review" v-if="arcitleInfo">
+    <scroll class="scroll-arcitle arcitle-content" ref="scroll" :data="arcitleInfo || review" v-if="arcitleInfo">
       <div v-if="!arcitleInfo">
       </div>
       <div class="arcitle-container" @click="isInputBlur">
@@ -106,7 +106,9 @@ export default {
       // 是否验证
       isVerify: false,
       // 键盘是否弹起
-      upspring: false
+      upspring: false,
+      // 验证是否显示绑定企业
+      isRule: false
     }
   },
   created () {
@@ -122,7 +124,8 @@ export default {
     }
     this.id = this.$route.query.id
     // this.user = util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u')
-    this.user = '111'
+    this.user = '1111'
+    this.rule()
     if (this.user) {
       this._ArticleInfo1()
       this._GetReviewFront()
@@ -136,33 +139,50 @@ export default {
     let u = navigator.userAgent
     let isAnd = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1
     let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
-    if (isAnd) {
-      let oh = document.documentElement.clientHeight || document.body.clientHeight
-      window.addEventListener("resize", () => {
-        let rh = document.documentElement.clientHeight || document.body.clientHeight
-        if (rh < oh) { 
-          this.upspring = true
-        } else {
-          this.upspring = false
-        }
-      })
-    }
-    if (isIOS) {
-      document.body.addEventListener('focusin', () => {  //软键盘弹起事件
-        this.upspring = true
-      })
-      document.body.addEventListener('focusout', () => { //软键盘关闭事件
-        this.upspring = false
-      })
-    }
+    // if (isAnd) {
+    //   let oh = document.documentElement.clientHeight || document.body.clientHeight
+    //   window.addEventListener("resize", () => {
+    //     let rh = document.documentElement.clientHeight || document.body.clientHeight
+    //     if (rh < oh) { 
+    //       this.upspring = true
+    //     } else {
+    //       this.upspring = false
+    //     }
+    //   })
+    // }
+    // if (isIOS) {
+    //   document.body.addEventListener('focusin', () => {  //软键盘弹起事件
+    //     this.upspring = true
+    //   })
+    //   document.body.addEventListener('focusout', () => { //软键盘关闭事件
+    //     this.upspring = false
+    //   })
+    // }
   },
   methods: {
+    // 验证是否绑定企业
+    async rule () {
+      let result1 = await CheckAppUserJoinEnterprise({type: 0})
+      if (result1.Code == 200) {
+        if (!result1.Data) {
+          // 是个人没有绑定过企业
+          this.isRule = true
+          return
+        } 
+      }
+    },
     // 兼容ios
     iosBlur () {
+      setTimeout (() => {
+        this.upspring = false
+      }, 200) 
       var u = navigator.userAgent, app = navigator.appVersion
       let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
       if (isiOS) {
-        window.scrollTo(0,0)
+        document.body.scrollTop = 0;
+        setTimeout(() => {
+          window.scrollTo(0,0)
+        }, 100);
       }
     },
     // 点击其他区域失去焦点
@@ -176,6 +196,9 @@ export default {
       })
       if (result.Code === 200) {
         this.arcitleInfo = result.Data
+        this.$nextTick(() => {
+          this.scrollArcitle()
+        })
       }
     },
     // 需要登录的接口
@@ -185,6 +208,9 @@ export default {
       })
       if (result.Code === 200) {
         this.arcitleInfo = result.Data
+        this.$nextTick(() => {
+          this.scrollArcitle()
+        })
       }
     },
     // 获取评论
@@ -217,19 +243,11 @@ export default {
         return 
       }
       // 查询是否绑定企业
-      let result = await CheckAppUserJoinEnterprise({type: 0})
-      if (result.Code == 200) {
-        if (!result.Data) {
-          // 是个人没有绑定过企业
-          this.isVerify = true
-          return
-        } 
+      if (this.isRule) {
+        this.isVerify = true
       }
-      // var u = navigator.userAgent, app = navigator.appVersion
-      // let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
-      // if (isiOS) {
-      //   window.scrollTo(0,0)
-      // }
+      // 聚焦显示 发送
+      this.upspring = true
     },
     // 发表评论
     async submitReview () {
@@ -240,24 +258,34 @@ export default {
         return
       }
       let result = await AddReview({
-         content: this.reviewContent,
+        content: this.reviewContent,
         articleID: this.id
       })
       this.reviewContent = ''
       this.bulr()
       this._GetReviewFront()
+      this.arcitleInfo = JSON.parse(JSON.stringify(this.arcitleInfo))
+      setTimeout(() => {
+        let dom = document.querySelector('.review')
+        console.log(this.$refs.scroll.scrollToElement(dom, 300))
+      }, 200)
+      
     },
     // 评论点赞
     async isLike (val) {
       // 判断绑定企业
-      let result1 = await CheckAppUserJoinEnterprise({type: 0})
-      if (result1.Code == 200) {
-        if (!result1.Data) {
-          // 是个人没有绑定过企业
-          this.isVerify = true
-          return
-        } 
+      if (this.isRule) {
+        this.isVerify = true
+        return
       }
+      // let result1 = await CheckAppUserJoinEnterprise({type: 0})
+      // if (result1.Code == 200) {
+      //   if (!result1.Data) {
+      //     // 是个人没有绑定过企业
+      //     this.isVerify = true
+      //     return
+      //   } 
+      // }
       let like = val.IsLike ? 0: 1
       let result = await AddReviewLike({
         like: like,
@@ -309,7 +337,6 @@ export default {
       //     let footerHeight = footer.clientHeight
       //     document.documentElement.style.height = domHeight + 'px'
       //     content.style.height = domHeight - headerHeight - footerHeight + 'px'
-      //     console.log(content)
       //     // alert(window.innerHeight,document.d)
       //   })
       // }
@@ -369,8 +396,9 @@ export default {
     padding: 0 .3rem 1rem;
     h1 {
       color: #333;
-      font-size: .5rem;
-      line-height: .7rem;
+      font-size: .4rem;
+      line-height: .5rem;
+      margin-bottom: .1rem;
     }
     .content-nav {
       font-size: .26rem;
@@ -389,7 +417,7 @@ export default {
     padding-top: .68rem;
     li {
       padding: .3rem .27rem;
-      border-bottom: 1px solid #979797;
+      border-bottom: 1px solid #ccc;
       &:last-child {
         border: 0;
       }
@@ -436,6 +464,8 @@ export default {
             vertical-align: bottom;
             position: relative;
             top: .1rem;
+            font-family: '微软雅黑';
+            font-weight: bold;
           }
           img {
             width: .29rem;

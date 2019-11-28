@@ -19,3 +19,6 @@ ul {
 img {
   vertical-align: top;
 }
+.content img {
+  max-width: 100% !important;
+}

@@ -39,7 +39,6 @@ export default {
       if (result.Code === 200) {
         this.liveInfo = result.Data.c
       }
-      // console.log(this.liveInfo)
     },
     // 获取课程目录
     async _GetChapterCoursewareShow () {
@@ -49,11 +48,9 @@ export default {
       if (result.Code === 200) {
         this.chapterList = result.Data.List
       }
-      console.log(result)
     },
     cuttentTabs (index) {
       this.type = index
-      // console.log(index)
     }
   },
   components: {

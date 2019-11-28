@@ -77,11 +77,9 @@ export default {
             }, function (player) {
                 player.play()
                 player.getDuration()
-                player.ready()
-                console.log(player.getDuration())
                 _this.$emit('codeing')
-                // console.log(_this.VideoImg, _this.defaultVideoImg)
-              // console.log('播放器创建好了。')
+                $("#J_prismPlayer").find(".prism-marker-text").css('display',  'none')
+
                 $("#J_prismPlayer video").attr("poster", _this.cover_img)
                 var userAgent = navigator.userAgent
                 // 判断华为手机

@@ -82,10 +82,12 @@ export default {
       arcitle: [],
       isLogin: '',
       // 是否验证
-      isVerify: false
+      isVerify: false,
+      isRule: false
     }
   },
   created () {
+    this.rule()
     this._GetMemberInfo()
     this.getRing()
     this.getArcitle()
@@ -95,11 +97,21 @@ export default {
     // 判断是否登录
     async _GetMemberInfo () {
       let result = await GetMemberInfo()
-      console.log(result)
       if (result.Code === 401) {
         this.isLogin = false
       } else {
         this.isLogin = result.Data
+      }
+    },
+    // 验证是否验证过企业
+    async rule () {
+      let result = await CheckAppUserJoinEnterprise({type: 0})
+      if (result.Code == 200) {
+        if (!result.Data) {
+          // 是个人没有绑定过企业
+          this.isRule = true
+          return
+        } 
       }
     },
     // 获取擂台
@@ -130,14 +142,18 @@ export default {
         return 
       }
       // 查询是否绑定企业
-      let result = await CheckAppUserJoinEnterprise({type: 0})
-      if (result.Code == 200) {
-        if (!result.Data) {
-          // 是个人没有绑定过企业
-          this.isVerify = true
-          return
-        } 
+      if (this.isRule) {
+        this.isVerify = true
+        return
       }
+      // let result = await CheckAppUserJoinEnterprise({type: 0})
+      // if (result.Code == 200) {
+      //   if (!result.Data) {
+      //     // 是个人没有绑定过企业
+      //     this.isVerify = true
+      //     return
+      //   } 
+      // }
       let ua = navigator.userAgent.toLowerCase();
       let android = ua.indexOf("glaer-android") > -1
       if (android) {
@@ -164,14 +180,18 @@ export default {
         return 
       }
       // 查询是否绑定企业
-      let result = await CheckAppUserJoinEnterprise({type: 0})
-      if (result.Code == 200) {
-        if (!result.Data) {
-          // 是个人没有绑定过企业
-          this.isVerify = true
-          return
-        } 
+      if (this.isRule) {
+        this.isVerify = true
+        return
       }
+      // let result = await CheckAppUserJoinEnterprise({type: 0})
+      // if (result.Code == 200) {
+      //   if (!result.Data) {
+      //     // 是个人没有绑定过企业
+      //     this.isVerify = true
+      //     return
+      //   } 
+      // }
       if (val.path) {
         this.$router.push(val.path)
       }

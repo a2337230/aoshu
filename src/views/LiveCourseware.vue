@@ -4,7 +4,7 @@
     <div class="video-box">
       <div class="error" v-show="prepare">
         <p>{{errorText}}</p>
-        <span @click="videodispose" v-if="errorText !== '直播已结束'">重试</span>
+        <span @click="videodispose" v-if="errorText !== '直播已结束' && errorText">重试</span>
       </div>
       <div class="prism-player" id="J_prismPlayer" v-show="isAlready"></div>
       <!-- <img src="./../common/LiveError.png" alt="" > -->
@@ -50,7 +50,7 @@
 import HeaderBox from '@/components/HeaderBox'
 // 企业认证
 import VerifyBox from '@/components/VerifyBox'
-import { GetCoursewareByID, GetCourseByIDShow, GetCourseMessage, SendCourseMessage, GetMemberInfo,CheckAppUserJoinEnterprise } from '@/api/index'
+import { GetCoursewareByID, GetCourseByIDShow, GetCourseMessage, SendCourseMessage, GetMemberInfo,CheckAppUserJoinEnterprise, UpdateCourseBrowseNum } from '@/api/index'
 import $ from 'jquery'
 import moment from 'moment'
 import { Toast } from 'mint-ui'
@@ -68,7 +68,8 @@ export default {
       // 准备中
       prepare: true,
       // 错误提示
-      errorText: '直播尚未开始',
+      // errorText: '直播尚未开始',
+      errorText: '',
       liveInfo: [],
       // 评论
       reivewContent: '',
@@ -77,7 +78,9 @@ export default {
       isLogin: '',
       timer: '',
       startTime: '',
-      isVerify: false
+      isVerify: false,
+      // 状态加载完成
+      isLoad: false
     }
   },
   created () {
@@ -87,6 +90,12 @@ export default {
     // this._GetCoursewareByID()
   },
   methods: {
+    // 增加浏览量
+    async _UpdateCourseBrowseNum () {
+      let result = await UpdateCourseBrowseNum({
+        CourseID: this.$route.query.id
+      })
+    },
     // 验证通过
     isOK () {
       this._GetCourseByIDShow()
@@ -109,7 +118,6 @@ export default {
     // 判断是否登录
     async _GetMemberInfo () {
       let result = await GetMemberInfo()
-      console.log(result)
       if (result.Code === 401) {
         MessageBox({
           title: '提示',
@@ -165,6 +173,7 @@ export default {
     },
     // 切换选项卡
     tabClick (index) {
+      clearTimeout(this.timer)
       this.tab = index
       if (index) {
         this._GetCourseMessage()
@@ -185,8 +194,7 @@ export default {
         this.reivewList = result.Data.reverse()
         this.timer = setTimeout(() => {
           this._GetCourseMessage()
-        }, 3000);
-        console.log(result)
+        }, 10000);
       }
     },
     // 获取直播详情
@@ -195,7 +203,7 @@ export default {
         courseID: this.$route.query.id
       })
       this.liveInfo = result.Data.c
-      console.log(result)
+      this._UpdateCourseBrowseNum()
     },
     async _GetCoursewareByID () {
       let result = await GetCoursewareByID({
@@ -205,7 +213,6 @@ export default {
       if (result.Code === 200) {
         if (!result.Data.LiveUrl) {
           this.errorText = '主播正在准备中...'
-          this.prepare = true
           this.isAlready = false
         }
         this.LiveUrl = result.Data.LiveUrl
@@ -215,6 +222,7 @@ export default {
         if (start > time) {
           // console.log('直播未开始')
           this.prepare = true
+          this.isLoad = true
           this.isAlready = false
         } else {
           this.errorText = '主播正在准备中...'
@@ -230,7 +238,7 @@ export default {
         let start1 = Number(result.Data.sDate.substring(6, result.Data.sDate.length - 2))
         let time1 = new Date().getTime()
         if (start1 > time1) {
-          console.log('直播未开始')
+          // console.log('直播未开始')
           this.prepare = true
           this.isAlready = false
         } else {
@@ -240,6 +248,7 @@ export default {
         }
         
       }
+      
     },
     // 初始化播放器
     initVideo () {
@@ -251,7 +260,7 @@ export default {
         isLive: true,//是不是直播
         source: this.LiveUrl,
         useH5Prism: true,
-        liveRetry: 9999,
+        liveRetry: 3,
         // liveStartTime: moment(this.startTime).format('YYYY/MM/DD HH:mm:ss')
       }, function (player) {
         //播放器创建好了
@@ -271,12 +280,12 @@ export default {
       });
       this.player.on("error", function () {
         this.errorText = '主播正在准备中'
-          console.log('直播失败');
+          // console.log('直播失败');
       });
       this.player.on("liveStreamStop", () => {   //直播流中断
         $('.prism-live-display')[0].innerText = '主播正在准备中...'
         this.errorText = '主播正在准备中'
-        console.log('直播中断');
+        // console.log('直播中断');
         this.isAlready = false
         this.prepare = true
       });
@@ -292,7 +301,7 @@ export default {
         this.isAlready = false
         this.prepare = true
         $('.prism-live-display')[0].innerText = '直播已结束'
-          console.log('直播结束');
+        // console.log('直播结束');
       });
     },
     closeDialog () {
@@ -305,7 +314,9 @@ export default {
   destroyed () {
     clearTimeout(this.timer)
     this.tab = 0
-    this.player.dispose()
+    if (this.player) {
+      this.player.dispose()
+    }
   },
   filters: {
     timeFormat (val) {
@@ -415,9 +426,9 @@ export default {
         margin-top: .2rem;
         font-size: .26rem;
         font-weight: lighter;
-        margin-bottom: .4rem;
       }
       .content {
+        margin-top: .4rem;
         font-weight: lighter;
         font-size: .3rem;
         line-height: .42rem;
