@@ -3,7 +3,7 @@
     <header-box></header-box>
     <!-- 视频播放 -->
     <div class="video">
-      <video-box :VideoId="VideoId" v-if="VideoId"></video-box>
+      <video-box :VideoId="VideoId" v-if="VideoId" :key="VideoId"></video-box>
     </div>
     <tabs @cuttentTabs="cuttentTabs"></tabs>
     <!-- 详情区域 -->
@@ -37,7 +37,7 @@
                 {{item.chapter.Name}}
               </h3>
               <ul class="chapter-list">
-                <li v-for="(citem, cindex) in item.courseware" :key="cindex" class="chapter-item">
+                <li v-for="(citem, cindex) in item.courseware" :key="cindex" class="chapter-item" :class="{currentItem: CoursewareID === citem.CoursewareID}" @click="clickList(citem.CoursewareID)">
                   <div class="chapter-item-title">
                     <img src="./../common/play.png" alt="">
                     <!-- <div class="chapter-name"> -->
@@ -115,7 +115,7 @@ export default {
       VideoId: '',
       isLogin: '',
       isVerify: false,
-      timer: ''
+      timer: '',
     }
   },
   created () {
@@ -272,6 +272,18 @@ export default {
     },
     closeDialog () {
       this.isVerify = false
+    },
+    // 点击列表
+    async clickList (val) {
+      this.CoursewareID = val
+      let result = await GetCoursewareByIDShow({
+        courseID: this.id,
+        coursewareID: this.CoursewareID,
+        type: 0
+      })
+      if (result.Code === 200) {
+        this.VideoId = result.Data.cw.BaofengFileName
+      }
     }
   },
   filters: {
@@ -338,6 +350,9 @@ export default {
       }
     }
     .info {
+      height: calc(~"100% - .4rem");
+      overflow-y: scroll;
+      &::-webkit-scrollbar {display:none}
       h2 {
         font-size: .3rem;
         margin-bottom: .1rem;
@@ -378,7 +393,7 @@ export default {
             }
             p {
               margin-bottom: 0;
-              color: #006B45;
+              color: #333;
               display:-webkit-box;
               -webkit-box-orient:vertical;
               -webkit-line-clamp:2;
@@ -404,6 +419,9 @@ export default {
             position: relative;
             top: -0.03rem;
           }
+        }
+        .currentItem .chapter-item-title p {
+          color: #006B45 !important;
         }
       }
     }
