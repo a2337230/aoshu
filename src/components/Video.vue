@@ -79,17 +79,19 @@ export default {
                 player.getDuration()
                 _this.$emit('codeing')
                 $("#J_prismPlayer").find(".prism-marker-text").css('display',  'none')
-
+                // $('.prism-cc-btn').css('display',  'none')
+                // $('.prism-setting-cc').css('display',  'none')
+                // $('.prism-setting-audio').css('display',  'none')
                 $("#J_prismPlayer video").attr("poster", _this.cover_img)
                 var userAgent = navigator.userAgent
                 // 判断华为手机
                 let huawei = navigator.appVersion.toLowerCase()
                 // alert(huawei.includes('huawei'))
-                var isiOS = !!userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
+                // var isiOS = !!userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
                 
-                if(isiOS || huawei.includes('huawei')) {
-                  $("#J_prismPlayer").find(".prism-fullscreen-btn").css('display',  'none')
-                }
+                // if(isiOS || huawei.includes('huawei')) {
+                //   $("#J_prismPlayer").find(".prism-fullscreen-btn").css('display',  'none')
+                // }
                 // if(navigator.userAgent.toLowerCase().indexOf("iphone")) {
                 //     $("#J_prismPlayer").find(".prism-fullscreen-btn").css('display',  'none')
                 // }

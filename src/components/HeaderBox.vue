@@ -26,8 +26,7 @@ export default {
   created () {
     let path = this.$route.name
     if (path === '艾舒专区') {
-      document.title = this.header = '艾舒专区'
-      // window.location.href = 'https://www2.xlxt.net'
+      document.title = this.header = '杨森直播'
     } else if (path === '艾舒直播专区' || path === '文章') {
       if (path === '艾舒直播专区') {
         document.title = this.header = '杨森艾舒专区'

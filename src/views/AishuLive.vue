@@ -77,19 +77,37 @@ export default {
         if (val.Sort == 1 || val.Sort == 4) {
           window.webkit.messageHandlers.goLiveViewPage.postMessage(String(id), String(CoursewareID))
         } else if (val.Sort == 2) {
-          window.webkit.messageHandlers.goCourseDetailsPage.postMessage(String(id))
+          this.$router.push({
+            name: '课程播放页',
+            query: {
+              id: id,
+              CoursewareID: CoursewareID
+            }
+          })
         }
       } else if (ios) {
         if (val.Sort == 1) {
           window.goLiveViewPage(String(id), String(CoursewareID)) 
         } else if (val.Sort == 2) {
-          window.goCourseDetailsPage(String(id)) 
+          this.$router.push({
+            name: '课程播放页',
+            query: {
+              id: id,
+              CoursewareID: CoursewareID
+            }
+          })
         }
       } else if (android) {
         if (val.Sort == 1) {
           window.android.goLiveViewPage(String(id), String(CoursewareID))
         } else if (val.Sort == 2) {
-          window.android.goCourseDetailsPage(String(id))
+          this.$router.push({
+            name: '课程播放页',
+            query: {
+              id: id,
+              CoursewareID: CoursewareID
+            }
+          })
         }
       } else {
         if (val.Sort == 1 || val.Sort == 4) {

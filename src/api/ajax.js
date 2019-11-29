@@ -1,6 +1,6 @@
 import axios from 'axios'
 import util from '@/util/util.js'
-
+import { Toast } from 'mint-ui'
 
 // ----------------------------------------------------------------
 // 开始动画
@@ -9,12 +9,12 @@ export default function ajax(url = '', params = {}, type = 'GET', isUrl = false)
 	return new Promise((resolve, reject) => {
 		// 设置headers
 		var headers = {
-			'k': 'ae33f8f114f45938b86fa5b920fecda4',
-			'u': 'fa7608620b016707ecb3232c43e1565a',
+			// 'k': 'ae33f8f114f45938b86fa5b920fecda4',
+			// 'u': 'fa7608620b016707ecb3232c43e1565a',
 			// 'Authorization': 'APPCODE 27c2bdd6227a4962b0779b6f6e1c881c',
 			// 'X-Ca-Stage': 'test',
-			// 'u':util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u'),
-			// 'k':util.getCookie('token') ? util.getCookie('token'): util.getCookie('k'), 
+			'u':util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u'),
+			'k':util.getCookie('token') ? util.getCookie('token'): util.getCookie('k'), 
 		}
 		if (type === 'GET') {
 			let paramsStr = ''
@@ -42,10 +42,9 @@ export default function ajax(url = '', params = {}, type = 'GET', isUrl = false)
 			resolve(reqponse.data)
 		}).catch(error => {
 			reject(error)
-			// Message({
-			// 	message: '数据库连接失败',
-			// 	type: 'error'
-			// })
+			Toast({
+        message: '网络连接失败'
+      })
 		})
 	})
 }

@@ -36,6 +36,7 @@ import { GetArticleShow, GetLive, GetMemberInfo, CheckAppUserJoinEnterprise } fr
 import { MessageBox } from 'mint-ui'
 // 企业认证
 import VerifyBox from '@/components/VerifyBox'
+import util from '@/util/util.js'
 export default {
   name: 'home',
   data() {
@@ -70,9 +71,6 @@ export default {
         },
         {
           img: require('./../common/2.jpg')
-        },
-        {
-          img: require('./../common/3.jpg')
         }
       ],
       // 跳转擂台图片
@@ -96,11 +94,16 @@ export default {
   methods: {
     // 判断是否登录
     async _GetMemberInfo () {
-      let result = await GetMemberInfo()
-      if (result.Code === 401) {
-        this.isLogin = false
+      let user = util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u')
+      if (user) {
+        this.isLogin = true
       } else {
-        this.isLogin = result.Data
+        let result = await GetMemberInfo()
+        if (result.Code === 401) {
+          this.isLogin = false
+        } else {
+          this.isLogin = result.Data
+        }
       }
     },
     // 验证是否验证过企业

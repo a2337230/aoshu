@@ -5,8 +5,9 @@
       <div class="title">
         企业认证
       </div>
+      <p class="hint">请填写真实信息，仅有一次机会</p>
       <div class="input">
-        <input type="text" v-model="text" placeholder="请输入企业名称" @input="input" maxlength='50'>
+        <input type="text" v-model="text" placeholder="请输入企业名称" @input="input" maxlength='50' @blur="isBlur">
         <div class="menu" v-show="selectShow">
           <ul>
             <li v-for="item in selectList" :key="item" v-html="item" @click="listClick(item)"></li>
@@ -325,6 +326,9 @@ export default {
     // this.selectList = JSON.parse(JSON.stringify(this.list))
   },
   methods: {
+    isBlur () {
+      this.selectShow = false
+    },
     // 关闭弹窗
     closeDialog () {
       this.$emit('closeDialog')
@@ -419,13 +423,21 @@ export default {
       text-align: center;
     }
     .title {
-      margin: .6rem 0 1rem;
+      margin: .6rem 0 0;
       width: 2.3rem;
       height: .6rem;
       // background-color: red;
       font-family: 'PMZD';
       font-size: .6rem;
       color: #006B45;
+    }
+    .hint {
+      color: #F5222D;
+      opacity: .8;
+      margin-top: .2rem;
+      font-size: .24rem;
+      line-height: .42rem;
+      margin-bottom: .6rem
     }
     .input {
       width: 100%;

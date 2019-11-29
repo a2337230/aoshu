@@ -25,7 +25,7 @@ export default {
       default: () => { return [] }
     },
     isLogin: {
-      type: [String, Object],
+      type: [String, Object, Boolean],
       default: ''
     }
   },
@@ -41,7 +41,7 @@ export default {
       if (!this.isLogin) {
         MessageBox({
           title: '提示',
-          message: '登录后可以进入直播',
+          message: '登录后可以浏览文章',
           showConfirmButton: true,
           showCancelButton: true,
           confirmButtonText: '登录'

@@ -46,9 +46,6 @@ export default {
       isHref: window.location.href,
     }
   },
-  mounted () {
-    this.user = util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u')
-  },
   methods: {
     // 分享微信好友
     goweixin (val) {

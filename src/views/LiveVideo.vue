@@ -275,6 +275,10 @@ export default {
     },
     // 点击列表
     async clickList (val) {
+      console.log(this.chapterList)
+      if (this.chapterList[0].courseware.length === 1) {
+        return
+      }
       this.CoursewareID = val
       let result = await GetCoursewareByIDShow({
         courseID: this.id,

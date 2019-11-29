@@ -22,3 +22,9 @@ img {
 .content img {
   max-width: 100% !important;
 }
+.content section {
+  max-width: 100vw
+}
+.prism-setting-cc, .prism-setting-audio, .prism-cc-btn {
+  display: none !important;
+}

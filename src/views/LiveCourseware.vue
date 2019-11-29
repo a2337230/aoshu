@@ -21,7 +21,7 @@
         <div class="content" v-html="liveInfo.Introduce"></div>
       </div>
       <div class="reivew" v-show="tab">
-        <scroll :data="reivewList" class="scroll">
+        <scroll :data="reivewList" class="scroll" :down="true">
           <ul class="reivew-menu">
             <li class="reivew-item" v-for="item in reivewList" :key="item.AddDate">
               <div class="user">
@@ -168,7 +168,7 @@ export default {
           pageindex: 1,
           fromTime: moment(new Date().getTime()).format('YYYY/MM/DD HH:mm:ss.000')
         })
-        this.reivewList = result1.Data.reverse()
+        this.reivewList = result1.Data
       }
     },
     // 切换选项卡
@@ -191,7 +191,7 @@ export default {
           pageindex: 1,
           fromTime: moment(new Date().getTime()).format('YYYY/MM/DD HH:mm:ss.000')
         })
-        this.reivewList = result.Data.reverse()
+        this.reivewList = result.Data
         this.timer = setTimeout(() => {
           this._GetCourseMessage()
         }, 10000);
@@ -221,6 +221,7 @@ export default {
         let start = Number(result.Data.cw.StartDate.substring(6, result.Data.cw.StartDate.length - 2))
         if (start > time) {
           // console.log('直播未开始')
+          this.errorText = '直播尚未开始'
           this.prepare = true
           this.isLoad = true
           this.isAlready = false

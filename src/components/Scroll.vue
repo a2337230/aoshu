@@ -43,6 +43,10 @@
       scrollY:{
         type: Boolean,
         default: true
+      },
+      down: {
+        type: Boolean,
+        default: false
       }
     },
     mounted() {
@@ -102,6 +106,9 @@
       data() {
         setTimeout(() => {
           this.refresh()
+          if (this.down) {
+            this.scroll.scrollTo(0, this.scroll.maxScrollY)
+          }
         }, this.refreshDelay)
       }
     }

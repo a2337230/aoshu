@@ -2,7 +2,7 @@
   <div class="arcitle">
     <!-- 头部 -->
     <header-box></header-box>
-    <scroll class="scroll-arcitle arcitle-content" ref="scroll" :data="arcitleInfo || review" v-if="arcitleInfo">
+    <scroll class="scroll-arcitle arcitle-content" ref="scroll" :data="arcitleInfo || review" v-if="arcitleInfo" :pullup="pullup" @scrollToEnd="scrollToEnd">
       <div v-if="!arcitleInfo">
       </div>
       <div class="arcitle-container" @click="isInputBlur">
@@ -96,6 +96,7 @@ export default {
       pageindex: 1,
       review: '',
       reviewContent: '',
+      reviewContent1: '',
       isH5: false,
       // 复制链接地址
       isHref: '',
@@ -108,7 +109,8 @@ export default {
       // 键盘是否弹起
       upspring: false,
       // 验证是否显示绑定企业
-      isRule: false
+      isRule: false,
+      pullup: false
     }
   },
   created () {
@@ -123,8 +125,8 @@ export default {
       this.isH5 = true
     }
     this.id = this.$route.query.id
-    // this.user = util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u')
-    this.user = '1111'
+    this.user = util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u')
+    // this.user = '1111'
     this.rule()
     if (this.user) {
       this._ArticleInfo1()
@@ -137,29 +139,23 @@ export default {
     this.isHref = window.location.href
     // 键盘弹起处理
     let u = navigator.userAgent
-    let isAnd = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1
     let isIOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
-    // if (isAnd) {
-    //   let oh = document.documentElement.clientHeight || document.body.clientHeight
-    //   window.addEventListener("resize", () => {
-    //     let rh = document.documentElement.clientHeight || document.body.clientHeight
-    //     if (rh < oh) { 
-    //       this.upspring = true
-    //     } else {
-    //       this.upspring = false
-    //     }
-    //   })
-    // }
-    // if (isIOS) {
-    //   document.body.addEventListener('focusin', () => {  //软键盘弹起事件
-    //     this.upspring = true
-    //   })
-    //   document.body.addEventListener('focusout', () => { //软键盘关闭事件
-    //     this.upspring = false
-    //   })
-    // }
+    if (isIOS) {
+      document.body.addEventListener('focusin', () => {  //软键盘弹起事件
+      })
+      document.body.addEventListener('focusout', () => { //软键盘关闭事件
+        let input = document.querySelector('.isInput')
+        input.blur()
+      })
+    }
   },
   methods: {
+    scrollToEnd () {
+      if (this.pullup) {
+        this.pagesize+=15
+        this._GetReviewFront()
+      }
+    },
     // 验证是否绑定企业
     async rule () {
       let result1 = await CheckAppUserJoinEnterprise({type: 0})
@@ -196,9 +192,6 @@ export default {
       })
       if (result.Code === 200) {
         this.arcitleInfo = result.Data
-        this.$nextTick(() => {
-          this.scrollArcitle()
-        })
       }
     },
     // 需要登录的接口
@@ -208,9 +201,6 @@ export default {
       })
       if (result.Code === 200) {
         this.arcitleInfo = result.Data
-        this.$nextTick(() => {
-          this.scrollArcitle()
-        })
       }
     },
     // 获取评论
@@ -222,6 +212,11 @@ export default {
       })
       if (result.Code === 200) {
         this.review = result.Data
+        if (this.pagesize * this.pageindex <= result.Count) {
+          this.pullup = true
+        } else {
+          this.pullup = false
+        }
       }
     },
     // 发表评论前验证登录
@@ -261,7 +256,11 @@ export default {
         content: this.reviewContent,
         articleID: this.id
       })
-      this.reviewContent = ''
+      Toast({
+        message: '评论成功',
+        iconClass: 'iconfont icon-xiaolianchenggong'
+      })
+      this.reviewContent = this.reviewContent1 = ''
       this.bulr()
       this._GetReviewFront()
       this.arcitleInfo = JSON.parse(JSON.stringify(this.arcitleInfo))
@@ -320,26 +319,33 @@ export default {
     }
   },
   watch: {
+    upspring (val) {
+      if (!val) {
+        this.reviewContent1 = this.reviewContent
+        this.reviewContent = ''
+        console.log(this.reviewContent, this.reviewContent1)
+      } else {
+        this.reviewContent = this.reviewContent1
+        this.reviewContent1 = ''
+      }
+      console.log(val)
+    },
     arcitleInfo () {
-      // 兼容ios
-      // var u = navigator.userAgent, app = navigator.appVersion
-      // let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)
-      // if (isiOS) {
-      //   this.$nextTick(() => {
-      //     let header = document.querySelector('.header')
-      //     let content = document.querySelector('.arcitle-content')
-      //     let footer = document.querySelector('.footer-reivew')
-      //     // 可是区高度
-      //     let domHeight = window.innerHeight
-      //     // 头部高度
-      //     let headerHeight = header.clientHeight
-      //     // 底部高度
-      //     let footerHeight = footer.clientHeight
-      //     document.documentElement.style.height = domHeight + 'px'
-      //     content.style.height = domHeight - headerHeight - footerHeight + 'px'
-      //     // alert(window.innerHeight,document.d)
-      //   })
-      // }
+      this.$nextTick(() => {
+        setTimeout(() => {
+          let content = document.querySelectorAll('.content img')
+          if (content) {
+            content.forEach(item => {
+              var timer = setInterval(() => {
+                if (item.complete) {
+                  this.$refs.scroll.refresh()
+                  clearInterval(timer)
+                }
+              }, 50)
+            })
+          }
+        }, 500)
+      })
     }
   },
   filters: {
@@ -392,8 +398,12 @@ export default {
       }
     }
   }
+  .arcitle-container {
+    max-width: 100vw;
+  }
   .content {
-    padding: 0 .3rem 1rem;
+    // width: calc(~"100vw - .6rem");
+    padding: 0 .3rem 0;
     h1 {
       color: #333;
       font-size: .4rem;
