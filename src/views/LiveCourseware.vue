@@ -531,5 +531,8 @@ export default {
     }
   }
 }
-  
+.video-box /deep/ .prism-big-play-btn {
+  left: 50% !important;
+  margin-left: -30px;
+}
 </style>
