@@ -247,9 +247,7 @@ export default {
           this.prepare = true
           this.isAlready = false
         }
-        
       }
-      
     },
     // 初始化播放器
     initVideo () {
@@ -268,6 +266,9 @@ export default {
         $('.prism-setting-btn').hide()
         $('.prism-cc-btn').hide()
       });
+      let u = navigator.userAgent
+      let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1
+      let isVideo = document.querySelector('#J_prismPlayer video')
       this.player.on("canplay", () => {
         $('.prism-live-display')[0].innerText = '正在直播中...'
         // console.log('直播正在进行');
@@ -281,17 +282,20 @@ export default {
       });
       this.player.on("error", function () {
         this.errorText = '主播正在准备中'
+        isVideo.src = ''
           // console.log('直播失败');
       });
       this.player.on("liveStreamStop", () => {   //直播流中断
         $('.prism-live-display')[0].innerText = '主播正在准备中...'
         this.errorText = '主播正在准备中'
+        isVideo.src = ''
         // console.log('直播中断');
         this.isAlready = false
         this.prepare = true
       });
       this.player.on("onM3u8Retry", () => {   //直播流中断
         $('.prism-live-display')[0].innerText = '主播正在准备中...'
+        isVideo.src = ''
         // console.log('直播中断恢复');
         this.errorText = '主播正在准备中'
         this.isAlready = false
@@ -299,6 +303,7 @@ export default {
       });
       this.player.on("ended", function () {
         this.errorText = '直播已结束'
+        isVideo.src = ''
         this.isAlready = false
         this.prepare = true
         $('.prism-live-display')[0].innerText = '直播已结束'

@@ -2,7 +2,7 @@
   <div class="arcitle">
     <!-- 头部 -->
     <header-box></header-box>
-    <scroll class="scroll-arcitle arcitle-content" ref="scroll" :data="arcitleInfo || review" v-if="arcitleInfo" :pullup="pullup" @scrollToEnd="scrollToEnd">
+    <scroll class="scroll-arcitle arcitle-content" ref="scroll" :data="arcitleInfo" v-if="arcitleInfo" :pullup="pullup" @scrollToEnd="scrollToEnd">
       <div v-if="!arcitleInfo">
       </div>
       <div class="arcitle-container" @click="isInputBlur">
@@ -48,6 +48,12 @@
                 {{item.Content}}
               </div>
             </li>
+            <div class="hint">
+              <div class="loading" v-show="isLoading">
+                <img src="./../common/loading.gif">正在加载
+              </div>
+              <div class="no-review" v-show="review.length && !pullup"><span>已显示全部评论</span></div>
+            </div>
           </ul>
         </div>
       </div>
@@ -109,7 +115,8 @@ export default {
       upspring: false,
       // 验证是否显示绑定企业
       isRule: false,
-      pullup: false
+      pullup: false,
+      isLoading: false
     }
   },
   created () {
@@ -204,6 +211,7 @@ export default {
     },
     // 获取评论
     async _GetReviewFront () {
+      this.isLoading = true
       let result = await GetReviewFront({
         articleID: this.id,
         pagesize: this.pagesize,
@@ -216,6 +224,10 @@ export default {
         } else {
           this.pullup = false
         }
+        this.isLoading = false
+        this.$nextTick(() => {
+          this.arcitleInfo = JSON.parse(JSON.stringify(this.arcitleInfo))
+        })
       }
     },
     // 发表评论前验证登录
@@ -427,9 +439,9 @@ export default {
     li {
       padding: .3rem .27rem;
       border-bottom: 1px solid #ccc;
-      &:last-child {
-        border: 0;
-      }
+      // &:nth-last-of-type(1) {
+      //   border: 0;
+      // }
       .review-header {
         display: flex;
         position: relative;
@@ -537,5 +549,26 @@ export default {
       color: #fff;
     }
   }
+}
+.hint {
+  height: .88rem;
+}
+.no-review, .loading {
+  height: .88rem;
+  text-align: center;
+  font-size: .3rem;
+  color: #999;
+  display: flex;
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  img {
+    width: .3rem;
+    height: .3rem;
+    margin-right: .1rem;
+  }
+}
+.loading {
+  margin-left: -.3rem;
 }
 </style>
