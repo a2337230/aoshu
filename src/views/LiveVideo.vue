@@ -84,7 +84,7 @@
         </div>
       </scroll>
     </div>
-    <verify-box v-if="isVerify" @closeDialog="closeDialog" @isOK="isOK"></verify-box>
+    <verify-box v-if="isVerify" @closeDialog="closeDialog" @isOK="isOK" @goHome="goHome"></verify-box>
   </div>
 </template>
 <script>
@@ -116,6 +116,7 @@ export default {
       isLogin: '',
       isVerify: false,
       timer: '',
+      isBtnClick: true
     }
   },
   created () {
@@ -129,6 +130,12 @@ export default {
       this._GetCourseByIDShow()
       this._GetChapterCoursewareShow()
       this._GetReview()
+    },
+    // 验证失败回首页
+    goHome () {
+      this.$router.push({
+        name: '艾舒专区'
+      })
     },
     // 增加浏览量
     async _UpdateCourseBrowseNum () {
@@ -247,26 +254,39 @@ export default {
     },
     // 发表评论
     async addReivew () {
-      if (!this.textarea) {
-        Toast({
+      if (this.isBtnClick) {
+        this.isBtnClick = false
+        if (!this.textarea) {
+          let suc = document.querySelectorAll('.success-r')
+          if (suc) {
+            suc.forEach(item => {
+              item.style.display = 'none'
+            })
+          }
+          Toast({
             message: '评论内容不能为空',
             duration: 2000
           })
+          this.isBtnClick = true
           return
         }
-      let result = await AddCourseReview({
-        content: this.textarea,
-        courseID: this.id,
-        verify: true,
-        star: this.Star
-      })
-      if (result.Code === 200) {
-        Toast({
-          message: '评论成功',
-          iconClass: 'iconfont icon-xiaolianchenggong'
+        let result = await AddCourseReview({
+          content: this.textarea,
+          courseID: this.id,
+          verify: true,
+          star: this.Star
         })
-        this.textarea = ''
-        this._GetReview()
+        if (result.Code === 200) {
+          Toast({
+            message: '评论成功',
+            className: 'success-r',
+            iconClass: 'iconfont icon-xiaolianchenggong'
+          })
+          this.textarea = ''
+          this.isBtnClick = true
+          this._GetReview()
+        }
+        
       }
     },
     // 评论滚动

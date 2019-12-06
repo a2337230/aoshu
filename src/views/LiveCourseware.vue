@@ -44,7 +44,7 @@
         </div>
       </div>
     </div>
-    <verify-box v-if="isVerify" @closeDialog="closeDialog" @isOK="isOK"></verify-box>
+    <verify-box v-if="isVerify" @closeDialog="closeDialog" @isOK="isOK" @goHome="goHome"></verify-box>
   </div>
 </template>
 <script>
@@ -83,7 +83,11 @@ export default {
       startTime: '',
       isVerify: false,
       // 状态加载完成
-      isLoad: false
+      isLoad: false,
+      // 验证企业输入框是否输入
+      isRuleBtn: true,
+      // 阻止按钮连续点击
+      isBtnClick: true
     }
   },
   created () {
@@ -93,6 +97,12 @@ export default {
     // this._GetCoursewareByID()
   },
   methods: {
+    // 验证失败回首页
+    goHome () {
+      this.$router.push({
+        name: '艾舒专区'
+      })
+    },
     // 增加直播记录
     async _UpdateStudyCourseProgress () {
       let result = await UpdateStudyCourseProgress({
@@ -159,20 +169,24 @@ export default {
         })
         return
       }
-      let result = await SendCourseMessage({
-        cid: this.$route.query.id,
-        cont: this.reivewContent,
-        toUserID: ''
-      })
-      if (result.Code === 200) {
-        this.reivewContent = ''
-        let result1 = await GetCourseMessage({
+      if (this.isBtnClick) {
+        this.isBtnClick = false
+        let result = await SendCourseMessage({
           cid: this.$route.query.id,
-          state: -1,
-          pageindex: 1,
-          fromTime: moment(new Date().getTime()).format('YYYY/MM/DD HH:mm:ss.000')
+          cont: this.reivewContent,
+          toUserID: ''
         })
-        this.reivewList = result1.Data
+        if (result.Code === 200) {
+          this.reivewContent = ''
+          let result1 = await GetCourseMessage({
+            cid: this.$route.query.id,
+            state: -1,
+            pageindex: 1,
+            fromTime: moment(new Date().getTime()).format('YYYY/MM/DD HH:mm:ss.000')
+          })
+          this.reivewList = result1.Data
+        }
+        this.isBtnClick = true
       }
     },
     // 切换选项卡

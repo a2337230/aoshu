@@ -318,7 +318,8 @@ export default {
       selectList: [],
       text: '',
       selectShow: false,
-      isRule:false
+      isRule:false,
+      isTrue: false
     }
   },
   created () {
@@ -332,6 +333,9 @@ export default {
     // 关闭弹窗
     closeDialog () {
       this.$emit('closeDialog')
+      if (!this.isTrue) {
+        this.$emit('goHome')
+      }
     },
     input () {
       this.isRule = false
@@ -376,6 +380,7 @@ export default {
         Type: 0
       })
       if (result.Code === 200) {
+        this.isTrue = true
         this.$emit('isOK')
         this.closeDialog()
       }
