@@ -77,6 +77,7 @@ export default {
             }, function (player) {
                 player.play()
                 player.getDuration()
+                player.pause()
                 _this.$emit('codeing')
                 $("#J_prismPlayer").find(".prism-marker-text").css('display',  'none')
                 // $('.prism-cc-btn').css('display',  'none')

@@ -247,6 +247,13 @@ export default {
     },
     // 发表评论
     async addReivew () {
+      if (!this.textarea) {
+        Toast({
+            message: '评论内容不能为空',
+            duration: 2000
+          })
+          return
+        }
       let result = await AddCourseReview({
         content: this.textarea,
         courseID: this.id,

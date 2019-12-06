@@ -17,8 +17,9 @@
     <div class="course-content">
       <div class="details" v-show="!tab">
         <h2>{{liveInfo.Name}}</h2>
-        <p>浏览量： {{liveInfo.BrowseNum}}</p>
-        <div class="content" v-html="liveInfo.Introduce"></div>
+        <p><i class="iconfont icon-xuanzhong"></i>课件1  {{ liveTitle }}</p>
+        <!-- <p>浏览量： {{liveInfo.BrowseNum}}</p> -->
+        <!-- <div class="content" v-html="liveInfo.Introduce"></div> -->
       </div>
       <div class="reivew" v-show="tab">
         <scroll :data="reivewList" class="scroll" :down="true">
@@ -50,10 +51,10 @@
 import HeaderBox from '@/components/HeaderBox'
 // 企业认证
 import VerifyBox from '@/components/VerifyBox'
-import { GetCoursewareByID, GetCourseByIDShow, GetCourseMessage, SendCourseMessage, GetMemberInfo,CheckAppUserJoinEnterprise, UpdateCourseBrowseNum } from '@/api/index'
+import { GetCoursewareByID, GetChapterCoursewareShow, GetCourseMessage, SendCourseMessage, GetMemberInfo,CheckAppUserJoinEnterprise, UpdateStudyCourseProgress } from '@/api/index'
 import $ from 'jquery'
 import moment from 'moment'
-import { Toast } from 'mint-ui'
+import { Toast, MessageBox } from 'mint-ui'
 export default {
   name: 'live',
   data () {
@@ -62,7 +63,7 @@ export default {
       player: '',
       coursewareID: 0,
       tab: 0,
-      tabs: ['详情', '交流区'],
+      tabs: ['目录', '交流区'],
       // 正在直播中
       isAlready: false,
       // 准备中
@@ -71,6 +72,8 @@ export default {
       // errorText: '直播尚未开始',
       errorText: '',
       liveInfo: [],
+      // 直播标题
+      liveTitle: '',
       // 评论
       reivewContent: '',
       // 评论列表
@@ -90,10 +93,12 @@ export default {
     // this._GetCoursewareByID()
   },
   methods: {
-    // 增加浏览量
-    async _UpdateCourseBrowseNum () {
-      let result = await UpdateCourseBrowseNum({
-        CourseID: this.$route.query.id
+    // 增加直播记录
+    async _UpdateStudyCourseProgress () {
+      let result = await UpdateStudyCourseProgress({
+        courseID: this.$route.query.id,
+        playtime: 0,
+        coursewareID: this.coursewareID
       })
     },
     // 验证通过
@@ -113,7 +118,6 @@ export default {
         } 
       }
       this._GetCourseByIDShow()
-      this._GetCoursewareByID()
     },
     // 判断是否登录
     async _GetMemberInfo () {
@@ -199,11 +203,15 @@ export default {
     },
     // 获取直播详情
     async _GetCourseByIDShow () {
-      let result = await GetCourseByIDShow({
+      let result = await GetChapterCoursewareShow({
         courseID: this.$route.query.id
       })
-      this.liveInfo = result.Data.c
-      this._UpdateCourseBrowseNum()
+      if (result.Code === 11131) {
+        return
+      }
+      this._GetCoursewareByID()
+      this.liveInfo = result.Data.List[0].chapter
+      this.liveTitle = result.Data.List[0].courseware[0].Name
     },
     async _GetCoursewareByID () {
       let result = await GetCoursewareByID({
@@ -212,7 +220,7 @@ export default {
       })
       if (result.Code === 200) {
         if (!result.Data.LiveUrl) {
-          this.errorText = '主播正在准备中...'
+          this.errorText = '主播正在准备中'
           this.isAlready = false
         }
         this.LiveUrl = result.Data.LiveUrl
@@ -226,7 +234,7 @@ export default {
           this.isLoad = true
           this.isAlready = false
         } else {
-          this.errorText = '主播正在准备中...'
+          this.errorText = '主播正在准备中'
           // console.log('直播开始')
           this.prepare = false
           this.isAlready = true
@@ -238,8 +246,10 @@ export default {
         // this.initVideo()
         let start1 = Number(result.Data.sDate.substring(6, result.Data.sDate.length - 2))
         let time1 = new Date().getTime()
+        console.log(start1 > time1)
         if (start1 > time1) {
           // console.log('直播未开始')
+          this.errorText = '直播尚未开始'
           this.prepare = true
           this.isAlready = false
         } else {
@@ -266,11 +276,12 @@ export default {
         $('.prism-setting-btn').hide()
         $('.prism-cc-btn').hide()
       });
+      this._UpdateStudyCourseProgress()
       let u = navigator.userAgent
       let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1
       let isVideo = document.querySelector('#J_prismPlayer video')
       this.player.on("canplay", () => {
-        $('.prism-live-display')[0].innerText = '正在直播中...'
+        $('.prism-live-display')[0].innerText = ''
         // console.log('直播正在进行');
         this.prepare = false
         this.isAlready = true
@@ -286,7 +297,7 @@ export default {
           // console.log('直播失败');
       });
       this.player.on("liveStreamStop", () => {   //直播流中断
-        $('.prism-live-display')[0].innerText = '主播正在准备中...'
+        $('.prism-live-display')[0].innerText = ''
         this.errorText = '主播正在准备中'
         isVideo.src = ''
         // console.log('直播中断');
@@ -294,7 +305,7 @@ export default {
         this.prepare = true
       });
       this.player.on("onM3u8Retry", () => {   //直播流中断
-        $('.prism-live-display')[0].innerText = '主播正在准备中...'
+        $('.prism-live-display')[0].innerText = ''
         isVideo.src = ''
         // console.log('直播中断恢复');
         this.errorText = '主播正在准备中'
@@ -306,7 +317,7 @@ export default {
         isVideo.src = ''
         this.isAlready = false
         this.prepare = true
-        $('.prism-live-display')[0].innerText = '直播已结束'
+        $('.prism-live-display')[0].innerText = ''
         // console.log('直播结束');
       });
     },
@@ -427,18 +438,30 @@ export default {
       color: #333;
       h2 {
         font-size: .3rem;
+        border-bottom: 1px solid #D9D9D9;
+        padding-bottom: .1rem;
       }
       p {
-        margin-top: .2rem;
-        font-size: .26rem;
-        font-weight: lighter;
+        // padding-left: .9rem;
+        font-size: .28rem;
+        line-height: .4rem;
+        color: #006B45;
+        margin-top: .22rem;
+        i {
+          margin-right: .3rem;
+        }
       }
-      .content {
-        margin-top: .4rem;
-        font-weight: lighter;
-        font-size: .3rem;
-        line-height: .42rem;
-      }
+      // p {
+      //   margin-top: .2rem;
+      //   font-size: .26rem;
+      //   font-weight: lighter;
+      // }
+      // .content {
+      //   margin-top: .4rem;
+      //   font-weight: lighter;
+      //   font-size: .3rem;
+      //   line-height: .42rem;
+      // }
     }
     .reivew {
       height: 100%;

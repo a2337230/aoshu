@@ -1,6 +1,6 @@
 import ajax from './ajax'
-// const BASE_URL = ''
-const BASE_URL = 'https://www2.xlxt.net' 
+const BASE_URL = ''
+// const BASE_URL = 'https://www2.xlxt.net' 
 
 export const GetArticleShow = () => ajax(BASE_URL + '/Article/GetArticleShow?Keyword=&ClassifyID=51&Pagesize=15&Pageindex=1&IsRecommend=0')
 // 获取文章详情有权限
@@ -27,6 +27,8 @@ export const GetCourseMessage = (params) => ajax(BASE_URL + '/PM/GetCourseMessag
 export const SendCourseMessage = (params) => ajax(BASE_URL + '/PM/SendCourseMessage', params, 'POST')
 // 获取课程目录
 export const GetChapterCoursewareShow = (params) => ajax(BASE_URL + '/Course/GetChapterCoursewareShow', params)
+// 增加直播记录
+export const UpdateStudyCourseProgress = (params) => ajax(BASE_URL + '/Course/UpdateStudyCourseProgress', params)
 // 获取课程评论
 export const GetReview = (params) => ajax(BASE_URL + '/Review/GetReview', params)
 // 添加课程评论

@@ -9,10 +9,10 @@ export default function ajax(url = '', params = {}, type = 'GET', isUrl = false)
 	return new Promise((resolve, reject) => {
 		// 设置headers
 		var headers = {
-			// 'k': 'ae33f8f114f45938b86fa5b920fecda4',
-			// 'u': 'fa7608620b016707ecb3232c43e1565a',
-			'u':util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u'),
-			'k':util.getCookie('token') ? util.getCookie('token'): util.getCookie('k'), 
+			'k': 'ae33f8f114f45938b86fa5b920fecda4',
+			'u': 'fa7608620b016707ecb3232c43e1565a',
+			// 'u':util.getCookie('UserID') ? util.getCookie('UserID'): util.getCookie('u'),
+			// 'k':util.getCookie('token') ? util.getCookie('token'): util.getCookie('k'), 
 		}
 		if (type === 'GET') {
 			let paramsStr = ''
