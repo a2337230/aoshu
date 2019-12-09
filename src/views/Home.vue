@@ -148,7 +148,7 @@ export default {
           confirmButtonText: '登录'
         }).then(action => {
           if (action === 'confirm') {
-            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+            window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
           }
         }) 
         return 
@@ -171,7 +171,7 @@ export default {
       if (android) {
         window.android.goPlacementMatchesPage(this.ringID)
       } else {
-        window.location.href = `https://m2.xlxt.net/examIndex.html#/arena/${this.ringID}/base=aishu`
+        window.location.href = `https://m.xlxt.net/examIndex.html#/arena/${this.ringID}/base=aishu`
       }
     },
     // 点击四大专区卡片跳转
@@ -189,7 +189,7 @@ export default {
           confirmButtonText: '登录'
         }).then(action => {
           if (action === 'confirm') {
-            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+            window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
           }
         }) 
         return 

@@ -6,8 +6,8 @@ import Mint from 'mint-ui'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'mint-ui/lib/style.css'
-import Vconsole from 'vconsole';
-new Vconsole()
+// import Vconsole from 'vconsole';
+// new Vconsole()
 Vue.use(VueClipboard)
 Vue.use(Mint)
 Vue.use(ElementUI)
