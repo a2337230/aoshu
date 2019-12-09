@@ -2,7 +2,7 @@
   <div class="aishu-live">
      <!-- 头部 -->
     <header-box></header-box>
-    <ul class="aishu-list">
+    <ul class="aishu-list" v-if="liveMenu.length">
       <li @click="goLive(item)" v-for="item in liveMenu" :key="item.ADID">
         <img :src="'https://img.xlxt.net' + item.ImgUrl">
         <div class="live-status">
@@ -14,6 +14,10 @@
         </div>
       </li>
     </ul>
+    <!-- 暂无直播 -->
+    <div v-else class="noMore">
+      <p>{{noMoreText}}</p>
+    </div>
     <!-- <verify-box v-if="isVerify" @closeDialog="closeDialog"></verify-box> -->
   </div>
 </template>
@@ -29,7 +33,8 @@ export default {
     return {
       liveMenu: [],
       isLogin: '',
-      isVerify: false
+      isVerify: false,
+      noMoreText: '暂无直播，敬请期待'
     }
   },
   created () {
@@ -135,6 +140,10 @@ export default {
       let result = await GetLive({
         positionCode: 'AI_SHU_LIVE'
       })
+      if (!result.Data.length) {
+        this.noMoreText = '暂无直播，敬请期待'
+        return
+      }
       let data = []
       let formatData = []
       data = result.Data.sort((n1,n2) => {
@@ -297,5 +306,12 @@ export default {
 .start {
   display: none;
   background-color: #1e90ff;
+}
+.noMore {
+  display: flex;
+  justify-content: center;
+  color: #999;
+  font-size: .3rem;
+  padding-top: 2rem;
 }
 </style>

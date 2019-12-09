@@ -33,7 +33,7 @@
 import HeaderBox from '@/components/HeaderBox'
 import Swiper from '@/components/Swiper'
 import { GetArticleShow, GetLive, GetMemberInfo, CheckAppUserJoinEnterprise } from '@/api/index'
-import { MessageBox } from 'mint-ui'
+import { MessageBox, Toast } from 'mint-ui'
 // 企业认证
 import VerifyBox from '@/components/VerifyBox'
 import util from '@/util/util.js'
@@ -76,6 +76,7 @@ export default {
       // 跳转擂台图片
       ring: '',
       ringID: '',
+      ringUrl: '',
       // 文章
       arcitle: [],
       isLogin: '',
@@ -125,10 +126,18 @@ export default {
       if (result.Code === 200) {
         this.ring = 'https://img.xlxt.net' + result.Data[0].ImgUrl
         this.ringID = result.Data[0].Sort
+        this.ringUrl =  result.Data[0].ADUrl
       }
     },
     // 跳转知识擂台
     async goRing () {
+      console.log(this.ringUrl)
+      if (this.ringUrl == 0) {
+        Toast({
+          message: '敬请期待',
+        })
+        return
+      }
       // 如果没有登录
       if (!this.isLogin) {
         MessageBox({
@@ -162,11 +171,14 @@ export default {
       if (android) {
         window.android.goPlacementMatchesPage(this.ringID)
       } else {
-        window.location.href = "https://m2.xlxt.net/examIndex.html#/arena/15006/base=aishu"
+        window.location.href = `https://m2.xlxt.net/examIndex.html#/arena/${this.ringID}/base=aishu`
       }
     },
     // 点击四大专区卡片跳转
     async goCard (val) {
+      if (val.name !== "杨森艾舒专区") {
+        return
+      }
       // 如果没有登录
       if (!this.isLogin) {
         MessageBox({
