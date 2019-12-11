@@ -7,7 +7,8 @@
       <div class="home-box">
         <!-- 轮播图 -->
         <div class="banner">
-          <swiper :imgs="banner"></swiper>
+          <!-- <swiper :imgs="banner"></swiper> -->
+          <img :src="require('./../common/1.jpg')" alt="">
         </div>
         <h2 class="home-title">直播专区</h2>
         <!-- 四大专区 -->
@@ -69,9 +70,9 @@ export default {
         {
           img: require('./../common/1.jpg')
         },
-        {
-          img: require('./../common/2.jpg')
-        }
+        // {
+        //   img: require('./../common/2.jpg')
+        // }
       ],
       // 跳转擂台图片
       ring: '',
@@ -248,6 +249,7 @@ export default {
     margin-bottom: .45rem;
     img {
       width: 100%;
+      height: 100%;
     }
   }
   .home-card {

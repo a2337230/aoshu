@@ -92,8 +92,6 @@ export default {
   name: 'arcitle',
   data () {
     return {
-      // 文章banner
-      banner: require('./../common/arcitle1.gif'),
       id: '',
       user: '',
       arcitleInfo: '',
