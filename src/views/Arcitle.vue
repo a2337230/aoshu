@@ -241,7 +241,7 @@ export default {
           confirmButtonText: '登录'
         }).then(action => {
           if (action === 'confirm') {
-            window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + this.isHref
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + this.isHref
           }
         }) 
         return 

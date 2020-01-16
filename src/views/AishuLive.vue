@@ -10,7 +10,7 @@
         </div>
         <div class="title-box">
           <h3>{{item.Name}}</h3>
-          <p>{{item.ADUrl | startFormat}} - {{item.ADUrl | endFormat}}</p>
+          <!-- <p>{{item.ADUrl | startFormat}} - {{item.ADUrl | endFormat}}</p> -->
         </div>
       </li>
     </ul>
@@ -67,18 +67,19 @@ export default {
           confirmButtonText: '登录'
         }).then(action => {
           if (action === 'confirm') {
-            window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
           }
         }) 
         return 
       }
+
       let id = Number(val.ADUrl.split(',')[2].split(':')[1])
       let CoursewareID = Number(val.ADUrl.split(',')[3].split(':')[1])
       let ua = navigator.userAgent.toLowerCase();
       let ios = ua.indexOf("native_app_ios") > -1
       let android = ua.indexOf("glaer-android") > -1
       let iosWk = ua.indexOf("native_app_ios_wk") > -1
-      if (this.iosWk) {
+      if (iosWk) {
         if (val.Sort == 1 || val.Sort == 4) {
           window.webkit.messageHandlers.goLiveViewPage.postMessage(String(id), String(CoursewareID))
         } else if (val.Sort == 2) {
@@ -90,8 +91,9 @@ export default {
             }
           })
         }
-      } else if (ios) {
-        if (val.Sort == 1) {
+      }
+      if (ios) {
+        if (val.Sort == 1  || val.Sort == 4) {
           window.goLiveViewPage(String(id), String(CoursewareID)) 
         } else if (val.Sort == 2) {
           this.$router.push({
@@ -102,8 +104,11 @@ export default {
             }
           })
         }
-      } else if (android) {
-        if (val.Sort == 1) {
+      }
+      
+      if (android) {
+       
+        if (val.Sort == 1 || val.Sort == 4) {
           window.android.goLiveViewPage(String(id), String(CoursewareID))
         } else if (val.Sort == 2) {
           this.$router.push({

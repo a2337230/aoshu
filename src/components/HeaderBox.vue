@@ -47,7 +47,7 @@ export default {
     goBack () {
       let path = this.$route.name
       if (path === '艾舒专区') {
-        window.location.href = 'https://m.xlxt.net'
+        window.location.href = 'https://m2.xlxt.net'
         return
       } 
       this.$router.push({

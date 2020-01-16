@@ -149,7 +149,7 @@ export default {
           confirmButtonText: '登录'
         }).then(action => {
           if (action === 'confirm') {
-            window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
           }
         }) 
         return 
@@ -190,7 +190,7 @@ export default {
           confirmButtonText: '登录'
         }).then(action => {
           if (action === 'confirm') {
-            window.location.href = 'https://sso.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
+            window.location.href = 'https://sso2.xlxt.net/applogin/login.html?ReturnUrl=' + window.location.href
           }
         }) 
         return 
